@@ -1,0 +1,57 @@
+html {
+  scroll-behavior: smooth;
+}
+
+body,
+.App {
+  overflow-x: hidden;
+}
+
+body {
+  background: #0A0A0A;
+  color: white;
+}
+
+.block-container {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  padding: 0 40px;
+
+  @media (max-width: 960px) {
+    padding: 0 20px;
+  }
+
+  .block-row {
+    margin: 0 auto;
+    max-width: 1300px;
+    width: 100%;
+
+    .info-container {
+      display: flex;
+      flex-direction: column;
+    }
+  }
+}
+
+.action-btn {
+  background: black;
+  border: 1px solid transparent;
+  padding: 0 24px;
+  min-height: 43px;
+  width: fit-content;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border-radius: 50px;
+  transition: all 0.3s 0s ease-out;
+  cursor: pointer;
+  user-select: none;
+
+  p {
+    color: #FFF;
+    text-align: center;
+    font-size: 16px;
+    transition: all 0.3s 0s ease-out;
+  }
+}
