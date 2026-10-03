@@ -15,16 +15,14 @@ const waveYGlsl = `
     float zone = mix(0.07, 1.0, pow(clamp(uCurveWidth, 0.0, 1.0), 0.75));
     float start = 1.0 - zone;
     float edge = pow(clamp((nx - start) / max(zone, 0.0001), 0.0, 1.0), 2.2);
-    float uLift = edge * (uEdgeHeight + abs(scroll) * 0.1 * uScrollIntensity);
+    float uLift = edge * (abs(scroll) * 0.1 * uScrollIntensity);
 
-    float freq = 1.0 / max(uWavelength, 0.15);
-    float maxH = uAmplitude * 1.3 + abs(scroll) * uAmplitude * 1.6 * uScrollIntensity;
-    float y = 0.0;
-    y += sin(x * 6.2831853 * freq - t * 0.5 + scroll * 1.4 * uScrollIntensity) * (uAmplitude + scroll * uAmplitude * 1.15 * uScrollIntensity);
-    y += sin(x * 6.2831853 * freq * 0.5 + t * 0.25 - scroll * 0.8 * uScrollIntensity) * (uAmplitude * 0.35 + scroll * uAmplitude * 0.4 * uScrollIntensity);
-    y = clamp(y, -maxH, maxH);
-
-    return 0.0 + uLift + y;
+    // standing wave: 2 fixed peaks oscillating up/down (guitar-string)
+    float amp = uAmplitude + abs(scroll) * uAmplitude * 1.15 * uScrollIntensity;
+    float osc = sin(t * 1.8 + scroll * 0.6 * uScrollIntensity);
+    float y = sin(x * 6.2831853 * 1.0) * osc * amp;
+    // lift by amp so downward swing stays on-screen
+    return uLift + amp + y;
   }
 `;
 
@@ -32,7 +30,6 @@ const ribbonFragmentShader = `
   uniform float uTime;
   uniform float uAspect;
   uniform float uScrollAmount;
-  uniform float uEdgeHeight;
   uniform float uWavelength;
   uniform float uAmplitude;
   uniform float uScrollIntensity;
@@ -102,7 +99,6 @@ const ribbonFragmentShader = `
 const bottomSunFragmentShader = `
   uniform float uTime;
   uniform float uScrollAmount;
-  uniform float uEdgeHeight;
   uniform float uWavelength;
   uniform float uAmplitude;
   uniform float uScrollIntensity;
@@ -129,8 +125,11 @@ const bottomSunFragmentShader = `
     above = max(above, 0.0);
 
     float glowAmt = uSunGlow + sin(t * 0.85) * 0.1;
-    float breath = 0.9 + 0.1 * sin(t * 0.7 + x * 2.4);
-    float crest = 0.85 + 0.15 * sin(x * 6.2831853 / max(uWavelength, 0.15) - t * 0.5);
+    float breath = 0.9 + 0.1 * sin(t * 0.7);
+    // same standing up/down pulse as the ribbon (no left-to-right travel)
+    float osc = sin(t * 1.8 + scroll * 0.6 * uScrollIntensity);
+    float standing = sin(x * 6.2831853);
+    float crest = 0.85 + 0.15 * standing * osc;
     float baseRise = exp(-above * 6.2);
     float baseHalo = exp(-above * 2.15) * 0.7;
     float baseStrength = glowAmt * breath * crest * (baseRise + baseHalo);
@@ -153,7 +152,6 @@ const bottomSunFragmentShader = `
 `;
 
 export type SiriRibbonParams = {
-  edgeHeight: number;
   wavelength: number;
   amplitude: number;
   scrollIntensity: number;
@@ -161,11 +159,12 @@ export type SiriRibbonParams = {
   sunGlow: number;
   sunScroll: number;
   sunOpacityBottom: number;
+  waveOffsetY: number;
 };
 
 export type SiriRibbonEffect = {
   update: (time: number, scroll: number, params: SiriRibbonParams) => void;
-  resize: (viewW: number, viewH: number) => void;
+  resize: (viewW: number, viewH: number, screenH: number) => void;
   dispose: () => void;
 };
 
@@ -174,7 +173,6 @@ function makeWaveUniforms(defaults: SiriRibbonParams) {
     uTime: { value: 0 },
     uAspect: { value: 1 },
     uScrollAmount: { value: 0 },
-    uEdgeHeight: { value: defaults.edgeHeight },
     uWavelength: { value: defaults.wavelength },
     uAmplitude: { value: defaults.amplitude },
     uScrollIntensity: { value: defaults.scrollIntensity },
@@ -217,10 +215,28 @@ export function createSiriRibbon(
   WavePlane.renderOrder = 2;
   scene.add(WavePlane);
 
+  let viewW = 1;
+  let viewH = 1;
+  let screenH = 1;
+  let waveOffsetY = defaults.waveOffsetY;
+
+  function ApplyLayout() {
+    const waveH = viewH * 0.18;
+    const sunH = viewH * 0.5;
+    const offsetY = (waveOffsetY / Math.max(screenH, 1)) * viewH;
+
+    WavePlane.scale.set(viewW, waveH, 1);
+    WavePlane.position.set(0, -viewH * 0.5 + waveH * 0.5 + offsetY, 0);
+    ribbonMaterial.uniforms.uAspect.value = viewW / Math.max(waveH, 0.0001);
+
+    SunPlane.scale.set(viewW, sunH, 1);
+    SunPlane.position.set(0, -viewH * 0.5 + sunH * 0.5 + offsetY, -0.01);
+    sunMaterial.uniforms.uRibbonScale.value = waveH / Math.max(sunH, 0.0001);
+  }
+
   function SyncUniforms(mat: THREE.ShaderMaterial, time: number, scroll: number, params: SiriRibbonParams) {
     mat.uniforms.uTime.value = time;
     mat.uniforms.uScrollAmount.value = scroll;
-    mat.uniforms.uEdgeHeight.value = params.edgeHeight;
     mat.uniforms.uWavelength.value = params.wavelength;
     mat.uniforms.uAmplitude.value = params.amplitude;
     mat.uniforms.uScrollIntensity.value = params.scrollIntensity;
@@ -234,18 +250,16 @@ export function createSiriRibbon(
       sunMaterial.uniforms.uSunGlow.value = params.sunGlow;
       sunMaterial.uniforms.uSunScroll.value = params.sunScroll;
       sunMaterial.uniforms.uSunOpacity.value = params.sunOpacityBottom;
+      if (params.waveOffsetY !== waveOffsetY) {
+        waveOffsetY = params.waveOffsetY;
+        ApplyLayout();
+      }
     },
-    resize(viewW, viewH) {
-      const waveH = viewH * 0.18;
-      const sunH = viewH * 0.5;
-
-      WavePlane.scale.set(viewW, waveH, 1);
-      WavePlane.position.set(0, -viewH * 0.5 + waveH * 0.5, 0);
-      ribbonMaterial.uniforms.uAspect.value = viewW / Math.max(waveH, 0.0001);
-
-      SunPlane.scale.set(viewW, sunH, 1);
-      SunPlane.position.set(0, -viewH * 0.5 + sunH * 0.5, -0.01);
-      sunMaterial.uniforms.uRibbonScale.value = waveH / Math.max(sunH, 0.0001);
+    resize(nextViewW, nextViewH, nextScreenH) {
+      viewW = nextViewW;
+      viewH = nextViewH;
+      screenH = nextScreenH;
+      ApplyLayout();
     },
     dispose() {
       scene.remove(WavePlane);

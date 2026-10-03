@@ -8,7 +8,6 @@ const LerpEase = 0.07;
 const RecoverLerp = 0.05;
 
 const DEFAULTS = {
-  edgeHeight: 0.00,
   wavelength: 0.85,
   amplitude: 0.018,
   scrollIntensity: 0.9,
@@ -17,6 +16,7 @@ const DEFAULTS = {
   sunScroll: 0.35,
   sunOpacityTop: 0.4,
   sunOpacityBottom: 0.6,
+  waveOffsetY: -5,
 };
 
 export default function ThreeJSCanvas() {
@@ -69,7 +69,7 @@ export default function ThreeJSCanvas() {
       const viewH = 2 * dist * Math.tan((camera.fov * Math.PI) / 360);
       const viewW = viewH * camera.aspect;
       topSunGlow.resize(viewW, viewH);
-      siriRibbon.resize(viewW, viewH);
+      siriRibbon.resize(viewW, viewH, WindowHeight);
     }
     FitToScreen();
 
@@ -123,16 +123,16 @@ export default function ThreeJSCanvas() {
       <div className="three-js-canvas-controls pointer-events-auto absolute top-[16px] right-[16px] z-[3] flex w-[240px] flex-col gap-[10px] rounded-[12px] bg-[#111111cc] p-[14px] text-[#ffffff]">
         <label className="three-js-canvas-control flex flex-col gap-[4px]">
           <span className="three-js-canvas-control-label text-[12px] leading-[16px] text-[#ffffffcc]">
-            Edge height {params.edgeHeight.toFixed(2)}
+            Wave offset Y {params.waveOffsetY}px
           </span>
           <input
             className="three-js-canvas-control-input w-full"
             type="range"
-            min="0"
-            max="0.8"
-            step="0.01"
-            value={params.edgeHeight}
-            onChange={(e) => setParam('edgeHeight', Number(e.target.value))}
+            min="-40"
+            max="80"
+            step="1"
+            value={params.waveOffsetY}
+            onChange={(e) => setParam('waveOffsetY', Number(e.target.value))}
           />
         </label>
         <label className="three-js-canvas-control flex flex-col gap-[4px]">

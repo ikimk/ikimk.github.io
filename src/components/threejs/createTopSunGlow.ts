@@ -12,7 +12,6 @@ const vertexShader = `
 const fragmentShader = `
   uniform float uTime;
   uniform float uScrollAmount;
-  uniform float uEdgeHeight;
   uniform float uWavelength;
   uniform float uAmplitude;
   uniform float uScrollIntensity;
@@ -56,7 +55,6 @@ const fragmentShader = `
 `;
 
 export type TopSunGlowParams = {
-  edgeHeight: number;
   wavelength: number;
   amplitude: number;
   scrollIntensity: number;
@@ -78,7 +76,6 @@ export function createTopSunGlow(scene: THREE.Scene): TopSunGlowEffect {
     uniforms: {
       uTime: { value: 0 },
       uScrollAmount: { value: 0 },
-      uEdgeHeight: { value: 0.07 },
       uWavelength: { value: 0.7 },
       uAmplitude: { value: 0.018 },
       uScrollIntensity: { value: 0.9 },
@@ -102,7 +99,6 @@ export function createTopSunGlow(scene: THREE.Scene): TopSunGlowEffect {
     update(time, scroll, params) {
       material.uniforms.uTime.value = time;
       material.uniforms.uScrollAmount.value = scroll;
-      material.uniforms.uEdgeHeight.value = params.edgeHeight;
       material.uniforms.uWavelength.value = params.wavelength;
       material.uniforms.uAmplitude.value = params.amplitude;
       material.uniforms.uScrollIntensity.value = params.scrollIntensity;
