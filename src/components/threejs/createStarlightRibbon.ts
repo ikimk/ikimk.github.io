@@ -11,19 +11,24 @@ const vertexShader = `
 `;
 
 const waveYGlsl = `
+  // Figma bend: flush to bottom, peaks in center, tapers to 0 at left/right edges
   float waveY(float x, float t, float scroll) {
-    float nx = abs(x - 0.5) * 2.0;
-    float zone = mix(0.07, 1.0, pow(clamp(uCurveWidth, 0.0, 1.0), 0.75));
-    float start = 1.0 - zone;
-    float edge = pow(clamp((nx - start) / max(zone, 0.0001), 0.0, 1.0), 2.2);
-    float uLift = edge * (abs(scroll) * 0.1 * uScrollIntensity);
+    float xx = clamp(x, 0.0, 1.0);
+    // 0 at both screen edges, 1 at center — the lens / arch envelope
+    float arch = sin(xx * 3.14159265);
+    // curve_width: lower = pointier peak, higher = fuller / flatter mid
+    float power = mix(1.45, 0.50, clamp(uCurveWidth, 0.0, 1.0));
+    arch = pow(max(arch, 0.0), power);
 
-    // standing wave: 2 fixed peaks oscillating up/down (guitar-string)
     float amp = uAmplitude + abs(scroll) * uAmplitude * 1.15 * uScrollIntensity;
+    // original peak scale (~2× amp); arch only reshapes it to touch the edges
+    float height = amp * 2.0 + abs(scroll) * 0.02 * uScrollIntensity;
+
+    // small standing ripple, scaled by arch so corners stay pinned to the edge
     float osc = sin(t * 1.8 + scroll * 0.6 * uScrollIntensity);
-    float y = sin(x * 6.2831853 * 1.0) * osc * amp;
-    // lift by amp so downward swing stays on-screen
-    return uLift + amp + y;
+    float ripple = sin(xx * 6.2831853 * max(uWavelength, 0.3)) * osc * amp * 0.35;
+
+    return max(0.0, arch * height + ripple * arch);
   }
 `;
 
@@ -52,10 +57,11 @@ const ribbonFragmentShader = `
     vec3 blue = vec3(0.06, 0.28, 1.0);
 
     vec3 color = blue;
-    color = mix(color, cyan, smoothstep(0.08, 0.38, across));
-    color = mix(color, yellow, smoothstep(0.36, 0.58, across));
-    color = mix(color, orange, smoothstep(0.55, 0.78, across));
-    color = mix(color, red, smoothstep(0.74, 1.0, across));
+    color = mix(color, cyan, smoothstep(0.08, 0.34, across));
+    // slightly thinner yellow band; orange/red come in a bit earlier
+    color = mix(color, yellow, smoothstep(0.32, 0.50, across));
+    color = mix(color, orange, smoothstep(0.46, 0.70, across));
+    color = mix(color, red, smoothstep(0.64, 0.94, across));
 
     // blue on both lifted corners, warm through the middle
     float edge = pow(abs(x - 0.5) * 2.0, 2.2);
@@ -75,7 +81,7 @@ const ribbonFragmentShader = `
 
     float thickness = 0.07 + abs(scroll) * 0.02;
     float across = clamp(d / max(thickness, 0.0001) * 0.5 + 0.5, 0.0, 1.0);
-    across = max(across, 0.48);
+    across = max(across, 0.42);
     vec3 color = starlightRgb(across, x);
 
     float ribbon = glow(ad / max(thickness, 0.0001), 2.4);
@@ -86,7 +92,7 @@ const ribbonFragmentShader = `
     float fill = under * mix(0.35, 1.0, fillFade);
 
     float edgeT = pow(abs(x - 0.5) * 2.0, 1.5);
-    vec3 fillCol = starlightRgb(mix(0.6, 0.1, edgeT), x);
+    vec3 fillCol = starlightRgb(mix(0.72, 0.12, edgeT), x);
 
     vec3 outCol = color * (ribbon * 1.2 + aura * 0.4);
     outCol = mix(outCol, fillCol, fill * 0.85);

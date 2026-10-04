@@ -12,7 +12,7 @@ export const RecoverLerp = 0.05;
 
 /** StarlightRibbon — bottom ribbon + its sun bloom */
 export const STARLIGHT_DEFAULTS = {
-  wave_offset_y: -5, // px — positive = up, negative = down
+  wave_offset_y: -7, // px — positive = up, negative = down
   wavelength: 0.85,
   amplitude: 0.018,
   scroll_intensity: 0.9,
