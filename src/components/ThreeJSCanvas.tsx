@@ -3,43 +3,22 @@ import React, { useEffect, useRef, useState } from 'react';
 import * as THREE from 'three';
 import { createStarlightRibbon } from '@/components/threejs/createStarlightRibbon';
 import { createSunGlow } from '@/components/threejs/createSunGlow';
-
-const LerpEase = 0.07;
-const RecoverLerp = 0.05;
-
-/** StarlightRibbon-only defaults — never shared with SunGlow */
-const STARLIGHT_DEFAULTS = {
-  wavelength: 0.85,
-  amplitude: 0.018,
-  scrollIntensity: 0.9,
-  curveWidth: 0.12,
-  sunGlow: 0.6,
-  sunScroll: 0.35,
-  sunOpacity: 0.6,
-  waveOffsetY: -5,
-};
-
-/** SunGlow-only defaults — never shared with StarlightRibbon */
-const SUNGLOW_DEFAULTS = {
-  sunGlow: 0.6,
-  sunScroll: 0.35,
-  sunOpacity: 0.4,
-};
-
-const DEFAULTS = {
-  ...STARLIGHT_DEFAULTS,
-  // prefix SunGlow keys so they cannot collide with StarlightRibbon
-  sunGlowTop: SUNGLOW_DEFAULTS.sunGlow,
-  sunScrollTop: SUNGLOW_DEFAULTS.sunScroll,
-  sunOpacityTop: SUNGLOW_DEFAULTS.sunOpacity,
-};
+import type { FilmGrainParams } from '@/components/threejs/createFilmGrain';
+import {
+  LerpEase,
+  RecoverLerp,
+  STARLIGHT_DEFAULTS,
+  SUNGLOW_DEFAULTS,
+  THREEJS_PANEL_DEFAULTS,
+  type ThreeJSPanelParams,
+} from '@/components/threejs/threeJSControls';
 
 export default function ThreeJSCanvas() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  const paramsRef = useRef({ ...DEFAULTS });
-  const [params, setParams] = useState({ ...DEFAULTS });
+  const paramsRef = useRef({ ...THREEJS_PANEL_DEFAULTS });
+  const [params, setParams] = useState({ ...THREEJS_PANEL_DEFAULTS });
 
-  function setParam(key: keyof typeof DEFAULTS, value: number) {
+  function setParam(key: keyof ThreeJSPanelParams, value: number) {
     paramsRef.current[key] = value;
     setParams((prev) => ({ ...prev, [key]: value }));
   }
@@ -74,6 +53,7 @@ export default function ThreeJSCanvas() {
     camera.lookAt(0, 0, 0);
 
     // separate components — each gets only its own params
+    // FilmGrain is opt-in GLSL on selected effects (currently StarlightRibbon only)
     const sunGlow = createSunGlow(scene, SUNGLOW_DEFAULTS);
     const starlightRibbon = createStarlightRibbon(scene, STARLIGHT_DEFAULTS);
 
@@ -102,6 +82,7 @@ export default function ThreeJSCanvas() {
 
       const time = clock.getElapsedTime();
       const p = paramsRef.current;
+      const filmGrain: FilmGrainParams = { intensity: p.grainIntensity };
 
       sunGlow.update(time, scrollCurrent, {
         sunGlow: p.sunGlowTop,
@@ -109,16 +90,22 @@ export default function ThreeJSCanvas() {
         sunOpacity: p.sunOpacityTop,
       });
 
-      starlightRibbon.update(time, scrollCurrent, {
-        wavelength: p.wavelength,
-        amplitude: p.amplitude,
-        scrollIntensity: p.scrollIntensity,
-        curveWidth: p.curveWidth,
-        sunGlow: p.sunGlow,
-        sunScroll: p.sunScroll,
-        sunOpacity: p.sunOpacity,
-        waveOffsetY: p.waveOffsetY,
-      });
+      // FilmGrain opt-in: StarlightRibbon only (add other effects here when selected)
+      starlightRibbon.update(
+        time,
+        scrollCurrent,
+        {
+          wavelength: p.wavelength,
+          amplitude: p.amplitude,
+          scrollIntensity: p.scrollIntensity,
+          curveWidth: p.curveWidth,
+          sunGlow: p.sunGlow,
+          sunScroll: p.sunScroll,
+          sunOpacity: p.sunOpacity,
+          waveOffsetY: p.waveOffsetY,
+        },
+        filmGrain,
+      );
 
       renderer.render(scene, camera);
       animationFrameId = requestAnimationFrame(AnimationLoop);
@@ -265,6 +252,24 @@ export default function ThreeJSCanvas() {
             step="0.01"
             value={params.sunOpacity}
             onChange={(e) => setParam('sunOpacity', Number(e.target.value))}
+          />
+        </label>
+
+        <p className="three-js-canvas-controls-group mt-[8px] text-[11px] font-[600] uppercase tracking-[0.06em] text-[#ffffff66]">
+          FilmGrain
+        </p>
+        <label className="three-js-canvas-control flex flex-col gap-[4px]">
+          <span className="three-js-canvas-control-label text-[12px] leading-[16px] text-[#ffffffcc]">
+            Grain intensity {params.grainIntensity.toFixed(2)}
+          </span>
+          <input
+            className="three-js-canvas-control-input w-full"
+            type="range"
+            min="0"
+            max="0.35"
+            step="0.01"
+            value={params.grainIntensity}
+            onChange={(e) => setParam('grainIntensity', Number(e.target.value))}
           />
         </label>
 

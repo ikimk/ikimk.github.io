@@ -1,4 +1,5 @@
 import * as THREE from 'three';
+import { filmGrainGlsl, filmGrainUniform, type FilmGrainParams } from '@/components/threejs/createFilmGrain';
 
 const vertexShader = `
   varying vec2 vUv;
@@ -37,6 +38,7 @@ const ribbonFragmentShader = `
   varying vec2 vUv;
 
   ${waveYGlsl}
+  ${filmGrainGlsl}
 
   float glow(float d, float tight) {
     return exp(-d * d * tight);
@@ -91,6 +93,7 @@ const ribbonFragmentShader = `
     outCol += fillCol * fill * 0.25;
 
     float alpha = max(clamp(ribbon * 0.95 + aura * 0.4, 0.0, 1.0), fill * 0.9);
+    outCol = applyFilmGrain(outCol, alpha);
 
     gl_FragColor = vec4(outCol, alpha);
   }
@@ -110,6 +113,7 @@ const bottomSunFragmentShader = `
   varying vec2 vUv;
 
   ${waveYGlsl}
+  ${filmGrainGlsl}
 
   void main() {
     float x = vUv.x;
@@ -146,8 +150,10 @@ const bottomSunFragmentShader = `
     vec3 sunYellow = vec3(1.0, 0.78, 0.12);
     float heat = clamp(baseRise * 0.9 + scrollRise * scrollPush * 0.35, 0.0, 1.0);
     vec3 sunCol = mix(sunOrange, sunYellow, heat * 0.85);
+    float alpha = clamp(sunStrength, 0.0, 1.0);
+    sunCol = applyFilmGrain(sunCol * sunStrength, alpha);
 
-    gl_FragColor = vec4(sunCol * sunStrength, clamp(sunStrength, 0.0, 1.0));
+    gl_FragColor = vec4(sunCol, alpha);
   }
 `;
 
@@ -163,7 +169,12 @@ export type StarlightRibbonParams = {
 };
 
 export type StarlightRibbonEffect = {
-  update: (time: number, scroll: number, params: StarlightRibbonParams) => void;
+  update: (
+    time: number,
+    scroll: number,
+    params: StarlightRibbonParams,
+    filmGrain: FilmGrainParams,
+  ) => void;
   resize: (viewW: number, viewH: number, screenH: number) => void;
   dispose: () => void;
 };
@@ -193,6 +204,7 @@ export function createStarlightRibbon(
       uSunScroll: { value: defaults.sunScroll },
       uSunOpacity: { value: defaults.sunOpacity },
       uRibbonScale: { value: 0.18 / 0.5 },
+      ...filmGrainUniform(0.18),
     },
     vertexShader,
     fragmentShader: bottomSunFragmentShader,
@@ -205,7 +217,10 @@ export function createStarlightRibbon(
   scene.add(SunPlane);
 
   const ribbonMaterial = new THREE.ShaderMaterial({
-    uniforms: makeWaveUniforms(defaults),
+    uniforms: {
+      ...makeWaveUniforms(defaults),
+      ...filmGrainUniform(0.18),
+    },
     vertexShader,
     fragmentShader: ribbonFragmentShader,
     transparent: true,
@@ -244,12 +259,14 @@ export function createStarlightRibbon(
   }
 
   return {
-    update(time, scroll, params) {
+    update(time, scroll, params, filmGrain) {
       SyncUniforms(ribbonMaterial, time, scroll, params);
       SyncUniforms(sunMaterial, time, scroll, params);
       sunMaterial.uniforms.uSunGlow.value = params.sunGlow;
       sunMaterial.uniforms.uSunScroll.value = params.sunScroll;
       sunMaterial.uniforms.uSunOpacity.value = params.sunOpacity;
+      ribbonMaterial.uniforms.uGrainIntensity.value = filmGrain.intensity;
+      sunMaterial.uniforms.uGrainIntensity.value = filmGrain.intensity;
       if (params.waveOffsetY !== waveOffsetY) {
         waveOffsetY = params.waveOffsetY;
         ApplyLayout();
