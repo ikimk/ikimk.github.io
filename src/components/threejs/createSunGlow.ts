@@ -22,8 +22,14 @@ const fragmentShader = `
     float t = uTime;
     float scroll = uScrollAmount;
 
-    // straight top edge — no ribbon / wave
-    float above = max(vUv.y, 0.0);
+    // same Figma bend as Starlight, mirrored to the top:
+    // flush to top edge, peaks down in center, pinches to L/R corners
+    float xx = clamp(x, 0.0, 1.0);
+    float arch = sin(xx * 3.14159265);
+    arch = pow(max(arch, 0.0), 0.85);
+    // subtle bend depth — keep overall glow height close to the original flat top
+    float rimY = arch * 0.06;
+    float above = max(vUv.y - rimY, 0.0);
 
     float glowAmt = uSunGlow + sin(t * 0.85) * 0.1;
     float breath = 0.9 + 0.1 * sin(t * 0.7 + x * 2.4);
@@ -40,10 +46,11 @@ const fragmentShader = `
 
     float sunStrength = (baseStrength + scrollStrength) * uSunOpacity;
 
-    vec3 sunOrange = vec3(1.0, 0.32, 0.04);
-    vec3 sunYellow = vec3(1.0, 0.78, 0.12);
+    // red glow (was yellow-heavy)
+    vec3 sunRed = vec3(1.0, 0.10, 0.04);
+    vec3 sunOrange = vec3(1.0, 0.28, 0.05);
     float heat = clamp(baseRise * 0.9 + scrollRise * scrollPush * 0.35, 0.0, 1.0);
-    vec3 sunCol = mix(sunOrange, sunYellow, heat * 0.85);
+    vec3 sunCol = mix(sunRed, sunOrange, heat * 0.45);
 
     gl_FragColor = vec4(sunCol * sunStrength, clamp(sunStrength, 0.0, 1.0));
   }

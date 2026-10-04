@@ -29,7 +29,7 @@ export const STARLIGHT_DEFAULTS = {
 export const SUNGLOW_DEFAULTS = {
   sun_glow: 0.6,
   sun_glow_on_scroll: 0.35,
-  sun_opacity: 0.4,
+  sun_opacity: 0.35,
 };
 
 /** FilmGrain — StarlightRibbon only (not shared with GradientCloud) */

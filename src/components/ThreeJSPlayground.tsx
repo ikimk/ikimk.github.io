@@ -10,7 +10,7 @@ export default function ThreeJSPlayground() {
       <p className="three-js-playground-text pointer-events-none inset-[0px] flex items-center justify-center text-[130px] font-[600] tracking-[-0.08em] text-[#ffffff]">
         HELLO
       </p>
-      <CTADiv className="three-js-playground-cta h-[300px] w-[70%] overflow-hidden rounded-[16px] border-[1px] border-[#ffffff33]">
+      <CTADiv className="three-js-playground-cta h-[300px] w-[70%] overflow-hidden rounded-[12px] border-[1px] border-[#532416]">
         <div className="cta-div-inner flex h-full flex-col items-center justify-center gap-[8px] px-[24px]">
           <p className="cta-div-title m-[0px] text-[18px] font-[600] leading-[24px] text-[#ffffff]">
             GradientCloud CTA
