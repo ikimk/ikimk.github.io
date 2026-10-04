@@ -51,9 +51,9 @@ const fragmentShader = `
 
 /** SunGlow-only params — never shared with StarlightRibbon */
 export type SunGlowParams = {
-  sunGlow: number;
-  sunScroll: number;
-  sunOpacity: number;
+  sun_glow: number;
+  sun_glow_on_scroll: number;
+  sun_opacity: number;
 };
 
 export type SunGlowEffect = {
@@ -63,18 +63,18 @@ export type SunGlowEffect = {
 };
 
 export function createSunGlow(scene: THREE.Scene, defaults?: Partial<SunGlowParams>): SunGlowEffect {
-  const sunGlow = defaults?.sunGlow ?? 0.6;
-  const sunScroll = defaults?.sunScroll ?? 0.35;
-  const sunOpacity = defaults?.sunOpacity ?? 0.4;
+  const sun_glow = defaults?.sun_glow ?? 0.6;
+  const sun_glow_on_scroll = defaults?.sun_glow_on_scroll ?? 0.35;
+  const sun_opacity = defaults?.sun_opacity ?? 0.4;
 
   const geometry = new THREE.PlaneGeometry(1, 1, 1, 1);
   const material = new THREE.ShaderMaterial({
     uniforms: {
       uTime: { value: 0 },
       uScrollAmount: { value: 0 },
-      uSunGlow: { value: sunGlow },
-      uSunScroll: { value: sunScroll },
-      uSunOpacity: { value: sunOpacity },
+      uSunGlow: { value: sun_glow },
+      uSunScroll: { value: sun_glow_on_scroll },
+      uSunOpacity: { value: sun_opacity },
     },
     vertexShader,
     fragmentShader,
@@ -90,9 +90,9 @@ export function createSunGlow(scene: THREE.Scene, defaults?: Partial<SunGlowPara
     update(time, scroll, params) {
       material.uniforms.uTime.value = time;
       material.uniforms.uScrollAmount.value = scroll;
-      material.uniforms.uSunGlow.value = params.sunGlow;
-      material.uniforms.uSunScroll.value = params.sunScroll;
-      material.uniforms.uSunOpacity.value = params.sunOpacity;
+      material.uniforms.uSunGlow.value = params.sun_glow;
+      material.uniforms.uSunScroll.value = params.sun_glow_on_scroll;
+      material.uniforms.uSunOpacity.value = params.sun_opacity;
     },
     resize(viewW, viewH) {
       const sunH = viewH * 0.5;

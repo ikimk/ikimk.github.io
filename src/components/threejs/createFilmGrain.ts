@@ -3,12 +3,12 @@
  *
  * Do NOT mount a fullscreen grain plane.
  * Wire `filmGrainGlsl` + `filmGrainUniform` only into effects that should show grain
- * (currently: StarlightRibbon). See Doc/threeJS/ThreeJSComponents.md.
+ * (currently: StarlightRibbon, GradientCloud). See Doc/threeJS/ThreeJSComponents.md.
  */
 
-/** FilmGrain-only params — intensity is independent of other effects */
+/** FilmGrain-only params — independent of other effects */
 export type FilmGrainParams = {
-  intensity: number;
+  grain_intensity: number;
 };
 
 /** Shared static grain helpers — include in selected effect fragment shaders */
@@ -29,8 +29,8 @@ export const filmGrainGlsl = `
   }
 `;
 
-export function filmGrainUniform(intensity = 0.18) {
+export function filmGrainUniform(grain_intensity = 0.13) {
   return {
-    uGrainIntensity: { value: intensity },
+    uGrainIntensity: { value: grain_intensity },
   };
 }

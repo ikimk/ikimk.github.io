@@ -1,5 +1,5 @@
 import * as THREE from 'three';
-import { filmGrainGlsl, filmGrainUniform, type FilmGrainParams } from '@/components/threejs/createFilmGrain';
+import { filmGrainGlsl, filmGrainUniform } from '@/components/threejs/createFilmGrain';
 
 const vertexShader = `
   varying vec2 vUv;
@@ -160,21 +160,18 @@ const bottomSunFragmentShader = `
 export type StarlightRibbonParams = {
   wavelength: number;
   amplitude: number;
-  scrollIntensity: number;
-  curveWidth: number;
-  sunGlow: number;
-  sunScroll: number;
-  sunOpacity: number;
-  waveOffsetY: number;
+  scroll_intensity: number;
+  curve_width: number;
+  ribbon_sun_glow: number;
+  ribbon_sun_on_scroll: number;
+  ribbon_sun_opacity: number;
+  wave_offset_y: number;
+  grain_intensity: number;
+  grain_intensity_to: number;
 };
 
 export type StarlightRibbonEffect = {
-  update: (
-    time: number,
-    scroll: number,
-    params: StarlightRibbonParams,
-    filmGrain: FilmGrainParams,
-  ) => void;
+  update: (time: number, scroll: number, params: StarlightRibbonParams) => void;
   resize: (viewW: number, viewH: number, screenH: number) => void;
   dispose: () => void;
 };
@@ -186,8 +183,8 @@ function makeWaveUniforms(defaults: StarlightRibbonParams) {
     uScrollAmount: { value: 0 },
     uWavelength: { value: defaults.wavelength },
     uAmplitude: { value: defaults.amplitude },
-    uScrollIntensity: { value: defaults.scrollIntensity },
-    uCurveWidth: { value: defaults.curveWidth },
+    uScrollIntensity: { value: defaults.scroll_intensity },
+    uCurveWidth: { value: defaults.curve_width },
   };
 }
 
@@ -200,11 +197,11 @@ export function createStarlightRibbon(
   const sunMaterial = new THREE.ShaderMaterial({
     uniforms: {
       ...makeWaveUniforms(defaults),
-      uSunGlow: { value: defaults.sunGlow },
-      uSunScroll: { value: defaults.sunScroll },
-      uSunOpacity: { value: defaults.sunOpacity },
+      uSunGlow: { value: defaults.ribbon_sun_glow },
+      uSunScroll: { value: defaults.ribbon_sun_on_scroll },
+      uSunOpacity: { value: defaults.ribbon_sun_opacity },
       uRibbonScale: { value: 0.18 / 0.5 },
-      ...filmGrainUniform(0.18),
+      ...filmGrainUniform(defaults.grain_intensity),
     },
     vertexShader,
     fragmentShader: bottomSunFragmentShader,
@@ -219,7 +216,7 @@ export function createStarlightRibbon(
   const ribbonMaterial = new THREE.ShaderMaterial({
     uniforms: {
       ...makeWaveUniforms(defaults),
-      ...filmGrainUniform(0.18),
+      ...filmGrainUniform(defaults.grain_intensity),
     },
     vertexShader,
     fragmentShader: ribbonFragmentShader,
@@ -233,12 +230,12 @@ export function createStarlightRibbon(
   let viewW = 1;
   let viewH = 1;
   let screenH = 1;
-  let waveOffsetY = defaults.waveOffsetY;
+  let wave_offset_y = defaults.wave_offset_y;
 
   function ApplyLayout() {
     const waveH = viewH * 0.18;
     const sunH = viewH * 0.5;
-    const offsetY = (waveOffsetY / Math.max(screenH, 1)) * viewH;
+    const offsetY = (wave_offset_y / Math.max(screenH, 1)) * viewH;
 
     WavePlane.scale.set(viewW, waveH, 1);
     WavePlane.position.set(0, -viewH * 0.5 + waveH * 0.5 + offsetY, 0);
@@ -254,21 +251,26 @@ export function createStarlightRibbon(
     mat.uniforms.uScrollAmount.value = scroll;
     mat.uniforms.uWavelength.value = params.wavelength;
     mat.uniforms.uAmplitude.value = params.amplitude;
-    mat.uniforms.uScrollIntensity.value = params.scrollIntensity;
-    mat.uniforms.uCurveWidth.value = params.curveWidth;
+    mat.uniforms.uScrollIntensity.value = params.scroll_intensity;
+    mat.uniforms.uCurveWidth.value = params.curve_width;
   }
 
   return {
-    update(time, scroll, params, filmGrain) {
+    update(time, scroll, params) {
       SyncUniforms(ribbonMaterial, time, scroll, params);
       SyncUniforms(sunMaterial, time, scroll, params);
-      sunMaterial.uniforms.uSunGlow.value = params.sunGlow;
-      sunMaterial.uniforms.uSunScroll.value = params.sunScroll;
-      sunMaterial.uniforms.uSunOpacity.value = params.sunOpacity;
-      ribbonMaterial.uniforms.uGrainIntensity.value = filmGrain.intensity;
-      sunMaterial.uniforms.uGrainIntensity.value = filmGrain.intensity;
-      if (params.waveOffsetY !== waveOffsetY) {
-        waveOffsetY = params.waveOffsetY;
+      sunMaterial.uniforms.uSunGlow.value = params.ribbon_sun_glow;
+      sunMaterial.uniforms.uSunScroll.value = params.ribbon_sun_on_scroll;
+      sunMaterial.uniforms.uSunOpacity.value = params.ribbon_sun_opacity;
+      // pulse Starlight grain between grain_intensity → grain_intensity_to
+      const g0 = params.grain_intensity;
+      const g1 = params.grain_intensity_to;
+      const grain =
+        g0 + (g1 - g0) * (0.5 + 0.5 * Math.sin(time * 1.1));
+      ribbonMaterial.uniforms.uGrainIntensity.value = grain;
+      sunMaterial.uniforms.uGrainIntensity.value = grain;
+      if (params.wave_offset_y !== wave_offset_y) {
+        wave_offset_y = params.wave_offset_y;
         ApplyLayout();
       }
     },

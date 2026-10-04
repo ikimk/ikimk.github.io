@@ -31,13 +31,26 @@ Each extra canvas / renderer / loop costs CPU and GPU. Shared effects on one can
 // <StarlightRibbonCanvas /> + <SunGlowCanvas />
 ```
 
-## FilmGrain (opt-in)
+## FilmGrain (opt-in) — per-component intensity
 
 - FilmGrain is **not** a fullscreen plane and **not** on every effect by default.
-- Apply grain only to **selected** effects (same pattern as StarlightRibbon): shared `filmGrainGlsl` / `filmGrainUniform` in that effect’s shader, intensity from `FILMGRAIN_DEFAULTS`.
+- Apply grain only to **selected** effects (same pattern as StarlightRibbon / GradientCloud): shared `filmGrainGlsl` / `filmGrainUniform` in that effect’s shader.
 - Keep the “Effects with FilmGrain” table in `Doc/threeJS/ThreeJSComponents.md` updated.
 - Do not add grain to SunGlow (or any other effect) unless the user asks for that effect specifically.
 
+### Grain intensity is never global
+
+When the user says change **`grain_intensity`** (or “more/less grain”), scope it **only** to the component that owns that grain control — never sync one slider into another effect.
+
+| Component | Panel / live key | Defaults |
+|---|---|---|
+| **StarlightRibbon** (FilmGrain section) | `grain_intensity` | `FILMGRAIN_DEFAULTS.grain_intensity` |
+| **GradientCloud** | `gradient_grain_intensity` → `gradientCloudLive.grain_intensity` | `GRADIENTCLOUD_DEFAULTS.grain_intensity` |
+
+- Do **not** wire GradientCloud’s grain into Starlight (or the reverse).
+- If a new effect gets FilmGrain later, give it its **own** intensity key + control under that effect’s section.
+
 ## Exceptions
 
-Only add another canvas if the user explicitly asks for a separate WebGL context (e.g. an isolated lab page that must not share state). Default remains one canvas.
+- **GradientCloud** is allowed its **own canvas** so it can fill a div background (e.g. `CTADiv`). Do not put GradientCloud on the shared `ThreeJSCanvas`.
+- Only add another canvas if the user explicitly asks for a separate WebGL context. Default for page-edge effects (StarlightRibbon, SunGlow, FilmGrain) remains one shared canvas.
