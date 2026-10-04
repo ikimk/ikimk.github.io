@@ -42,7 +42,7 @@ const ribbonFragmentShader = `
     return exp(-d * d * tight);
   }
 
-  vec3 siriRgb(float across, float x) {
+  vec3 starlightRgb(float across, float x) {
     vec3 red = vec3(1.0, 0.12, 0.08);
     vec3 orange = vec3(1.0, 0.5, 0.08);
     vec3 yellow = vec3(1.0, 0.88, 0.35);
@@ -74,7 +74,7 @@ const ribbonFragmentShader = `
     float thickness = 0.07 + abs(scroll) * 0.02;
     float across = clamp(d / max(thickness, 0.0001) * 0.5 + 0.5, 0.0, 1.0);
     across = max(across, 0.48);
-    vec3 color = siriRgb(across, x);
+    vec3 color = starlightRgb(across, x);
 
     float ribbon = glow(ad / max(thickness, 0.0001), 2.4);
     float aura = glow(ad / max(thickness * 2.6, 0.0001), 1.1);
@@ -84,7 +84,7 @@ const ribbonFragmentShader = `
     float fill = under * mix(0.35, 1.0, fillFade);
 
     float edgeT = pow(abs(x - 0.5) * 2.0, 1.5);
-    vec3 fillCol = siriRgb(mix(0.6, 0.1, edgeT), x);
+    vec3 fillCol = starlightRgb(mix(0.6, 0.1, edgeT), x);
 
     vec3 outCol = color * (ribbon * 1.2 + aura * 0.4);
     outCol = mix(outCol, fillCol, fill * 0.85);
@@ -151,24 +151,24 @@ const bottomSunFragmentShader = `
   }
 `;
 
-export type SiriRibbonParams = {
+export type StarlightRibbonParams = {
   wavelength: number;
   amplitude: number;
   scrollIntensity: number;
   curveWidth: number;
   sunGlow: number;
   sunScroll: number;
-  sunOpacityBottom: number;
+  sunOpacity: number;
   waveOffsetY: number;
 };
 
-export type SiriRibbonEffect = {
-  update: (time: number, scroll: number, params: SiriRibbonParams) => void;
+export type StarlightRibbonEffect = {
+  update: (time: number, scroll: number, params: StarlightRibbonParams) => void;
   resize: (viewW: number, viewH: number, screenH: number) => void;
   dispose: () => void;
 };
 
-function makeWaveUniforms(defaults: SiriRibbonParams) {
+function makeWaveUniforms(defaults: StarlightRibbonParams) {
   return {
     uTime: { value: 0 },
     uAspect: { value: 1 },
@@ -180,10 +180,10 @@ function makeWaveUniforms(defaults: SiriRibbonParams) {
   };
 }
 
-export function createSiriRibbon(
+export function createStarlightRibbon(
   scene: THREE.Scene,
-  defaults: SiriRibbonParams,
-): SiriRibbonEffect {
+  defaults: StarlightRibbonParams,
+): StarlightRibbonEffect {
   const geometry = new THREE.PlaneGeometry(1, 1, 1, 1);
 
   const sunMaterial = new THREE.ShaderMaterial({
@@ -191,7 +191,7 @@ export function createSiriRibbon(
       ...makeWaveUniforms(defaults),
       uSunGlow: { value: defaults.sunGlow },
       uSunScroll: { value: defaults.sunScroll },
-      uSunOpacity: { value: defaults.sunOpacityBottom },
+      uSunOpacity: { value: defaults.sunOpacity },
       uRibbonScale: { value: 0.18 / 0.5 },
     },
     vertexShader,
@@ -234,7 +234,7 @@ export function createSiriRibbon(
     sunMaterial.uniforms.uRibbonScale.value = waveH / Math.max(sunH, 0.0001);
   }
 
-  function SyncUniforms(mat: THREE.ShaderMaterial, time: number, scroll: number, params: SiriRibbonParams) {
+  function SyncUniforms(mat: THREE.ShaderMaterial, time: number, scroll: number, params: StarlightRibbonParams) {
     mat.uniforms.uTime.value = time;
     mat.uniforms.uScrollAmount.value = scroll;
     mat.uniforms.uWavelength.value = params.wavelength;
@@ -249,7 +249,7 @@ export function createSiriRibbon(
       SyncUniforms(sunMaterial, time, scroll, params);
       sunMaterial.uniforms.uSunGlow.value = params.sunGlow;
       sunMaterial.uniforms.uSunScroll.value = params.sunScroll;
-      sunMaterial.uniforms.uSunOpacity.value = params.sunOpacityBottom;
+      sunMaterial.uniforms.uSunOpacity.value = params.sunOpacity;
       if (params.waveOffsetY !== waveOffsetY) {
         waveOffsetY = params.waveOffsetY;
         ApplyLayout();

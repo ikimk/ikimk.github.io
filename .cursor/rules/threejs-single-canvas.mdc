@@ -1,0 +1,36 @@
+---
+description: Use one WebGL canvas and one Three.js environment for all 3D effects
+globs: src/components/threejs/**/*,src/components/ThreeJS*.tsx,src/app/threejs/**/*,Doc/threeJS/**/*
+alwaysApply: false
+---
+
+# Three.js — Single Canvas
+
+When working on Three.js, WebGL, or any 3D / shader effect in this project: **one canvas, one Three.js environment**.
+
+## Hard rules
+
+- Prefer a **single** `<canvas>` + one `WebGLRenderer` + one `Scene` + one animation loop.
+- Add new effects as **factories / modules** that attach meshes/materials to that shared scene (see `src/components/threejs/`).
+- Do **not** mount a second full Three.js canvas for StarlightRibbon, SunGlow, or other page effects.
+- Do **not** run multiple `requestAnimationFrame` render loops that each call `renderer.render` for the same view.
+
+## Why
+
+Each extra canvas / renderer / loop costs CPU and GPU. Shared effects on one canvas stay lighter and stay in sync (time, scroll, resize).
+
+## Pattern
+
+```tsx
+// ✅ Host owns the canvas once
+// ThreeJSCanvas → scene + renderer + loop
+//   createStarlightRibbon(scene)
+//   createSunGlow(scene)
+
+// ❌ Bad — separate canvases / environments per effect
+// <StarlightRibbonCanvas /> + <SunGlowCanvas />
+```
+
+## Exceptions
+
+Only add another canvas if the user explicitly asks for a separate WebGL context (e.g. an isolated lab page that must not share state). Default remains one canvas.

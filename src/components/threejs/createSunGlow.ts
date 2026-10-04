@@ -12,14 +12,9 @@ const vertexShader = `
 const fragmentShader = `
   uniform float uTime;
   uniform float uScrollAmount;
-  uniform float uWavelength;
-  uniform float uAmplitude;
-  uniform float uScrollIntensity;
-  uniform float uCurveWidth;
   uniform float uSunGlow;
   uniform float uSunScroll;
   uniform float uSunOpacity;
-  uniform float uRibbonScale;
   varying vec2 vUv;
 
   void main() {
@@ -27,12 +22,12 @@ const fragmentShader = `
     float t = uTime;
     float scroll = uScrollAmount;
 
-    // straight top edge — no wave on the source line
+    // straight top edge — no ribbon / wave
     float above = max(vUv.y, 0.0);
 
     float glowAmt = uSunGlow + sin(t * 0.85) * 0.1;
     float breath = 0.9 + 0.1 * sin(t * 0.7 + x * 2.4);
-    float crest = 0.85 + 0.15 * sin(x * 6.2831853 / max(uWavelength, 0.15) - t * 0.5);
+    float crest = 0.85 + 0.15 * sin(t * 0.5);
     float baseRise = exp(-above * 6.2);
     float baseHalo = exp(-above * 2.15) * 0.7;
     float baseStrength = glowAmt * breath * crest * (baseRise + baseHalo);
@@ -54,36 +49,32 @@ const fragmentShader = `
   }
 `;
 
-export type TopSunGlowParams = {
-  wavelength: number;
-  amplitude: number;
-  scrollIntensity: number;
-  curveWidth: number;
+/** SunGlow-only params — never shared with StarlightRibbon */
+export type SunGlowParams = {
   sunGlow: number;
   sunScroll: number;
-  sunOpacityTop: number;
+  sunOpacity: number;
 };
 
-export type TopSunGlowEffect = {
-  update: (time: number, scroll: number, params: TopSunGlowParams) => void;
+export type SunGlowEffect = {
+  update: (time: number, scroll: number, params: SunGlowParams) => void;
   resize: (viewW: number, viewH: number) => void;
   dispose: () => void;
 };
 
-export function createTopSunGlow(scene: THREE.Scene): TopSunGlowEffect {
+export function createSunGlow(scene: THREE.Scene, defaults?: Partial<SunGlowParams>): SunGlowEffect {
+  const sunGlow = defaults?.sunGlow ?? 0.6;
+  const sunScroll = defaults?.sunScroll ?? 0.35;
+  const sunOpacity = defaults?.sunOpacity ?? 0.4;
+
   const geometry = new THREE.PlaneGeometry(1, 1, 1, 1);
   const material = new THREE.ShaderMaterial({
     uniforms: {
       uTime: { value: 0 },
       uScrollAmount: { value: 0 },
-      uWavelength: { value: 0.7 },
-      uAmplitude: { value: 0.018 },
-      uScrollIntensity: { value: 0.9 },
-      uCurveWidth: { value: 0.12 },
-      uSunGlow: { value: 0.6 },
-      uSunScroll: { value: 0.35 },
-      uSunOpacity: { value: 0.4 },
-      uRibbonScale: { value: 0.18 / 0.5 },
+      uSunGlow: { value: sunGlow },
+      uSunScroll: { value: sunScroll },
+      uSunOpacity: { value: sunOpacity },
     },
     vertexShader,
     fragmentShader,
@@ -99,19 +90,14 @@ export function createTopSunGlow(scene: THREE.Scene): TopSunGlowEffect {
     update(time, scroll, params) {
       material.uniforms.uTime.value = time;
       material.uniforms.uScrollAmount.value = scroll;
-      material.uniforms.uWavelength.value = params.wavelength;
-      material.uniforms.uAmplitude.value = params.amplitude;
-      material.uniforms.uScrollIntensity.value = params.scrollIntensity;
-      material.uniforms.uCurveWidth.value = params.curveWidth;
       material.uniforms.uSunGlow.value = params.sunGlow;
       material.uniforms.uSunScroll.value = params.sunScroll;
-      material.uniforms.uSunOpacity.value = params.sunOpacityTop;
+      material.uniforms.uSunOpacity.value = params.sunOpacity;
     },
     resize(viewW, viewH) {
       const sunH = viewH * 0.5;
       mesh.scale.set(viewW, sunH, 1);
       mesh.position.set(0, viewH * 0.5 - sunH * 0.5, 0);
-      material.uniforms.uRibbonScale.value = (viewH * 0.18) / Math.max(sunH, 0.0001);
     },
     dispose() {
       scene.remove(mesh);

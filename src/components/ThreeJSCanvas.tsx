@@ -1,22 +1,37 @@
 'use client';
 import React, { useEffect, useRef, useState } from 'react';
 import * as THREE from 'three';
-import { createSiriRibbon } from '@/components/threejs/createSiriRibbon';
-import { createTopSunGlow } from '@/components/threejs/createTopSunGlow';
+import { createStarlightRibbon } from '@/components/threejs/createStarlightRibbon';
+import { createSunGlow } from '@/components/threejs/createSunGlow';
 
 const LerpEase = 0.07;
 const RecoverLerp = 0.05;
 
-const DEFAULTS = {
+/** StarlightRibbon-only defaults — never shared with SunGlow */
+const STARLIGHT_DEFAULTS = {
   wavelength: 0.85,
   amplitude: 0.018,
   scrollIntensity: 0.9,
   curveWidth: 0.12,
   sunGlow: 0.6,
   sunScroll: 0.35,
-  sunOpacityTop: 0.4,
-  sunOpacityBottom: 0.6,
+  sunOpacity: 0.6,
   waveOffsetY: -5,
+};
+
+/** SunGlow-only defaults — never shared with StarlightRibbon */
+const SUNGLOW_DEFAULTS = {
+  sunGlow: 0.6,
+  sunScroll: 0.35,
+  sunOpacity: 0.4,
+};
+
+const DEFAULTS = {
+  ...STARLIGHT_DEFAULTS,
+  // prefix SunGlow keys so they cannot collide with StarlightRibbon
+  sunGlowTop: SUNGLOW_DEFAULTS.sunGlow,
+  sunScrollTop: SUNGLOW_DEFAULTS.sunScroll,
+  sunOpacityTop: SUNGLOW_DEFAULTS.sunOpacity,
 };
 
 export default function ThreeJSCanvas() {
@@ -58,9 +73,9 @@ export default function ThreeJSCanvas() {
     camera.position.set(0, 0, 6.5);
     camera.lookAt(0, 0, 0);
 
-    // one canvas — effects live in separate files
-    const topSunGlow = createTopSunGlow(scene);
-    const siriRibbon = createSiriRibbon(scene, DEFAULTS);
+    // separate components — each gets only its own params
+    const sunGlow = createSunGlow(scene, SUNGLOW_DEFAULTS);
+    const starlightRibbon = createStarlightRibbon(scene, STARLIGHT_DEFAULTS);
 
     const clock = new THREE.Clock();
 
@@ -68,8 +83,8 @@ export default function ThreeJSCanvas() {
       const dist = camera.position.z;
       const viewH = 2 * dist * Math.tan((camera.fov * Math.PI) / 360);
       const viewW = viewH * camera.aspect;
-      topSunGlow.resize(viewW, viewH);
-      siriRibbon.resize(viewW, viewH, WindowHeight);
+      sunGlow.resize(viewW, viewH);
+      starlightRibbon.resize(viewW, viewH, WindowHeight);
     }
     FitToScreen();
 
@@ -87,8 +102,24 @@ export default function ThreeJSCanvas() {
 
       const time = clock.getElapsedTime();
       const p = paramsRef.current;
-      topSunGlow.update(time, scrollCurrent, p);
-      siriRibbon.update(time, scrollCurrent, p);
+
+      sunGlow.update(time, scrollCurrent, {
+        sunGlow: p.sunGlowTop,
+        sunScroll: p.sunScrollTop,
+        sunOpacity: p.sunOpacityTop,
+      });
+
+      starlightRibbon.update(time, scrollCurrent, {
+        wavelength: p.wavelength,
+        amplitude: p.amplitude,
+        scrollIntensity: p.scrollIntensity,
+        curveWidth: p.curveWidth,
+        sunGlow: p.sunGlow,
+        sunScroll: p.sunScroll,
+        sunOpacity: p.sunOpacity,
+        waveOffsetY: p.waveOffsetY,
+      });
+
       renderer.render(scene, camera);
       animationFrameId = requestAnimationFrame(AnimationLoop);
     }
@@ -108,8 +139,8 @@ export default function ThreeJSCanvas() {
       cancelAnimationFrame(animationFrameId);
       window.removeEventListener('wheel', onWheel);
       window.removeEventListener('resize', onResize);
-      topSunGlow.dispose();
-      siriRibbon.dispose();
+      sunGlow.dispose();
+      starlightRibbon.dispose();
       renderer.dispose();
     };
   }, []);
@@ -121,6 +152,9 @@ export default function ThreeJSCanvas() {
         className="ThreeJSCanvas pointer-events-none absolute top-[0px] left-[0px] z-[1] h-[100vh] w-[100vw]"
       />
       <div className="three-js-canvas-controls pointer-events-auto absolute top-[16px] right-[16px] z-[3] flex w-[240px] flex-col gap-[10px] rounded-[12px] bg-[#111111cc] p-[14px] text-[#ffffff]">
+        <p className="three-js-canvas-controls-group text-[11px] font-[600] uppercase tracking-[0.06em] text-[#ffffff66]">
+          StarlightRibbon
+        </p>
         <label className="three-js-canvas-control flex flex-col gap-[4px]">
           <span className="three-js-canvas-control-label text-[12px] leading-[16px] text-[#ffffffcc]">
             Wave offset Y {params.waveOffsetY}px
@@ -193,7 +227,7 @@ export default function ThreeJSCanvas() {
         </label>
         <label className="three-js-canvas-control flex flex-col gap-[4px]">
           <span className="three-js-canvas-control-label text-[12px] leading-[16px] text-[#ffffffcc]">
-            Sun glow {params.sunGlow.toFixed(2)}
+            Ribbon sun glow {params.sunGlow.toFixed(2)}
           </span>
           <input
             className="three-js-canvas-control-input w-full"
@@ -207,7 +241,7 @@ export default function ThreeJSCanvas() {
         </label>
         <label className="three-js-canvas-control flex flex-col gap-[4px]">
           <span className="three-js-canvas-control-label text-[12px] leading-[16px] text-[#ffffffcc]">
-            Sun glow on scroll {params.sunScroll.toFixed(2)}
+            Ribbon sun on scroll {params.sunScroll.toFixed(2)}
           </span>
           <input
             className="three-js-canvas-control-input w-full"
@@ -221,7 +255,53 @@ export default function ThreeJSCanvas() {
         </label>
         <label className="three-js-canvas-control flex flex-col gap-[4px]">
           <span className="three-js-canvas-control-label text-[12px] leading-[16px] text-[#ffffffcc]">
-            Sun opacity top {params.sunOpacityTop.toFixed(2)}
+            Ribbon sun opacity {params.sunOpacity.toFixed(2)}
+          </span>
+          <input
+            className="three-js-canvas-control-input w-full"
+            type="range"
+            min="0"
+            max="1"
+            step="0.01"
+            value={params.sunOpacity}
+            onChange={(e) => setParam('sunOpacity', Number(e.target.value))}
+          />
+        </label>
+
+        <p className="three-js-canvas-controls-group mt-[8px] text-[11px] font-[600] uppercase tracking-[0.06em] text-[#ffffff66]">
+          SunGlow
+        </p>
+        <label className="three-js-canvas-control flex flex-col gap-[4px]">
+          <span className="three-js-canvas-control-label text-[12px] leading-[16px] text-[#ffffffcc]">
+            Sun glow {params.sunGlowTop.toFixed(2)}
+          </span>
+          <input
+            className="three-js-canvas-control-input w-full"
+            type="range"
+            min="0"
+            max="2"
+            step="0.02"
+            value={params.sunGlowTop}
+            onChange={(e) => setParam('sunGlowTop', Number(e.target.value))}
+          />
+        </label>
+        <label className="three-js-canvas-control flex flex-col gap-[4px]">
+          <span className="three-js-canvas-control-label text-[12px] leading-[16px] text-[#ffffffcc]">
+            Sun glow on scroll {params.sunScrollTop.toFixed(2)}
+          </span>
+          <input
+            className="three-js-canvas-control-input w-full"
+            type="range"
+            min="0"
+            max="3"
+            step="0.05"
+            value={params.sunScrollTop}
+            onChange={(e) => setParam('sunScrollTop', Number(e.target.value))}
+          />
+        </label>
+        <label className="three-js-canvas-control flex flex-col gap-[4px]">
+          <span className="three-js-canvas-control-label text-[12px] leading-[16px] text-[#ffffffcc]">
+            Sun opacity {params.sunOpacityTop.toFixed(2)}
           </span>
           <input
             className="three-js-canvas-control-input w-full"
@@ -231,20 +311,6 @@ export default function ThreeJSCanvas() {
             step="0.01"
             value={params.sunOpacityTop}
             onChange={(e) => setParam('sunOpacityTop', Number(e.target.value))}
-          />
-        </label>
-        <label className="three-js-canvas-control flex flex-col gap-[4px]">
-          <span className="three-js-canvas-control-label text-[12px] leading-[16px] text-[#ffffffcc]">
-            Sun opacity bottom {params.sunOpacityBottom.toFixed(2)}
-          </span>
-          <input
-            className="three-js-canvas-control-input w-full"
-            type="range"
-            min="0"
-            max="1"
-            step="0.01"
-            value={params.sunOpacityBottom}
-            onChange={(e) => setParam('sunOpacityBottom', Number(e.target.value))}
           />
         </label>
       </div>
