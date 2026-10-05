@@ -50,6 +50,11 @@ When the user says change **`grain_intensity`** (or “more/less grain”), scop
 - Do **not** wire GradientCloud’s grain into Starlight (or the reverse).
 - If a new effect gets FilmGrain later, give it its **own** intensity key + control under that effect’s section.
 
+## Colors
+
+- Effect / shader hex → `src/components/threejs/threeJSColors.ts` (`ThreeColor*`).
+- UI palette → `src/utils/color.ts` (`Color*`). Do not mix.
+
 ## Exceptions
 
 - **GradientCloud** is allowed its **own canvas** so it can fill a div background (e.g. `CTADiv`). Do not put GradientCloud on the shared `ThreeJSCanvas`.

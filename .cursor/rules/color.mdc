@@ -1,0 +1,43 @@
+---
+description: Strict color tokens from color.ts — no hardcoded hex in UI
+globs: src/**/*.{tsx,ts,scss,css}
+alwaysApply: false
+---
+
+# Color — UI Palette Tokens
+
+**ALWAYS** use `src/utils/color.ts` with **exact color name** variables (`ColorBlack`, `ColorWhite`, `ColorCream`…).
+
+No role aliases (`ColorBg` / `ColorText` / `ColorLogo`). Three.js → `src/components/threejs/threeJSColors.ts`.
+
+Together with `goldenRatio.ts` (space/size) and `typo.ts` (type), this is the project design system.
+
+## Hard rules
+
+1. **ALWAYS** import exact `Color*` names from `@/utils/color` — never paste `#E8E2DB` / `#000000` into className when a token exists.
+2. When the user gives a **new UI color** (hex / name) → **update `color.ts` first** (exact `Color*` name + `colorCssVars` if needed), then wire UI.
+3. Match an existing `Color*` when the hex already exists; otherwise add the token before using it in components.
+4. Non-token hex **only** when the user explicitly overrides in chat.
+5. New Three.js effect colors → update `threeJSColors.ts` first (`ThreeColor*`), not `color.ts`.
+
+```ts
+import { ColorBlack, ColorCream, ColorWhite } from '@/utils/color';
+
+// ✅
+style={{ backgroundColor: ColorBlack, color: ColorCream }}
+style={{ color: ColorWhite }}
+
+// ❌ role aliases
+import { ColorBg, ColorText, ColorLogo } from '@/utils/color';
+
+// ❌
+className="bg-[#000000] text-[#E8E2DB]"
+```
+
+## Current UI tokens
+
+| Token | Hex |
+|-------|-----|
+| `ColorBlack` | `#000000` |
+| `ColorWhite` | `#FFFFFF` |
+| `ColorCream` | `#E8E2DB` |

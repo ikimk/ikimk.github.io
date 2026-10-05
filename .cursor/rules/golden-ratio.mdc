@@ -1,0 +1,62 @@
+---
+description: Strict golden-ratio spacing and type scale for all visual sizing
+globs: src/**/*.{tsx,ts,scss,css}
+alwaysApply: false
+---
+
+# Golden Ratio — Strict Visual Scale
+
+**ALWAYS** use values from `src/utils/goldenRatio.ts` for **padding**, **margin**, **height**, **width**, and **gap**.
+
+**Type** (font-size / tracking / weight) → `src/utils/typo.ts` (sizes map to golden Scales). See `.cursor/rules/typo.mdc`.
+
+Base: **1400px** · φ **1.618** · steps Scale1 → Scale18.
+
+## Hard rules
+
+1. **ALWAYS AND ALWAYS** import and use `ScaleN` / `GOLDEN_SCALE` / helpers from `goldenRatio.ts`. Never invent px. Never paste scale numbers into class strings when a Scale exists.
+2. When the user (or Figma) says a px value (e.g. `29.78px`, `18.41`, `~100px`):
+   - **Exact match** → use that Scale (`29.78` → `Scale9`).
+   - **Near match / freestyle** → `nearestGoldenScale` / `snapToGolden` and use that Scale.
+3. **Only** use a non-scale value when the user **explicitly says so in chat** for that property (e.g. “use exactly 40px, not golden”). Do not assume exceptions.
+4. Prefer `style={{ fontSize: Scale10, gap: Scale11, paddingTop: Scale10 }}` (React adds `px` for numbers) or `goldenPxString(n)`.
+5. Tailwind: layout/color utilities OK; size tokens must come from Scale*. Never `p-4` / theme spacing.
+
+```ts
+import { Scale8, Scale9, Scale10, Scale11 } from '@/utils/goldenRatio';
+
+// User said "29.78px" / "18.41px" / "11.37px" → match Scales, don't hardcode
+style={{ fontSize: Scale10, paddingLeft: Scale8, gap: Scale11 }} // Scale9 = 29.78
+
+// ❌
+className="text-[18.41px] px-[48.23px] gap-[11.37px]"
+// ❌ inventing 40px / 20px without user override
+```
+
+## Scale (px)
+
+| Scale | px |
+|------|-----|
+| 1 | 1400 |
+| 2 | 865.28 |
+| 3 | 534.54 |
+| 4 | 330.44 |
+| 5 | 204.26 |
+| 6 | 126.23 |
+| 7 | 78 |
+| 8 | 48.23 |
+| 9 | 29.78 |
+| 10 | 18.41 |
+| 11 | 11.37 |
+| 12 | 7.04 |
+| 13 | 4.35 |
+| 14 | 2.69 |
+| 15 | 1.66 |
+| 16 | 1.03 |
+| 17 | 0.63 |
+| 18 | 0.39 |
+
+## Exceptions
+
+- Non-scale px **only** when the user directly requests that exact override in chat.
+- Three.js / shader uniforms and non-layout math are outside this rule unless they set layout CSS.

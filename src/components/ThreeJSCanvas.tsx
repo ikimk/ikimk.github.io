@@ -41,7 +41,17 @@ function ControlSection({
   );
 }
 
-export default function ThreeJSCanvas() {
+type ThreeJSCanvasProps = {
+  /** Debug panel — on for `/threejs`, off for production pages */
+  showControls?: boolean;
+  /** Top edge sun (playground). Homepage Figma uses bottom ribbon only. */
+  includeSunGlow?: boolean;
+};
+
+export default function ThreeJSCanvas({
+  showControls = true,
+  includeSunGlow = true,
+}: ThreeJSCanvasProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const paramsRef = useRef({ ...THREEJS_PANEL_DEFAULTS });
   const [params, setParams] = useState({ ...THREEJS_PANEL_DEFAULTS });
@@ -83,7 +93,9 @@ export default function ThreeJSCanvas() {
 
     // shared-canvas effects only — GradientCloud kept for later (not mounted here)
     // FilmGrain is opt-in GLSL on selected effects (currently StarlightRibbon only)
-    const sunGlow = createSunGlow(scene, SUNGLOW_DEFAULTS);
+    const sunGlow = includeSunGlow
+      ? createSunGlow(scene, SUNGLOW_DEFAULTS)
+      : null;
     const starlightRibbon = createStarlightRibbon(scene, STARLIGHT_DEFAULTS);
 
     const clock = new THREE.Clock();
@@ -92,7 +104,7 @@ export default function ThreeJSCanvas() {
       const dist = camera.position.z;
       const viewH = 2 * dist * Math.tan((camera.fov * Math.PI) / 360);
       const viewW = viewH * camera.aspect;
-      sunGlow.resize(viewW, viewH);
+      sunGlow?.resize(viewW, viewH);
       starlightRibbon.resize(viewW, viewH, WindowHeight);
     }
     FitToScreen();
@@ -111,11 +123,13 @@ export default function ThreeJSCanvas() {
 
       const time = clock.getElapsedTime();
       const p = paramsRef.current;
-      sunGlow.update(time, scrollCurrent, {
-        sun_glow: p.sun_glow,
-        sun_glow_on_scroll: p.sun_glow_on_scroll,
-        sun_opacity: p.sun_opacity,
-      });
+      if (sunGlow) {
+        sunGlow.update(time, scrollCurrent, {
+          sun_glow: p.sun_glow,
+          sun_glow_on_scroll: p.sun_glow_on_scroll,
+          sun_opacity: p.sun_opacity,
+        });
+      }
 
       // Starlight FilmGrain only — animates grain_intensity → grain_intensity_to
       starlightRibbon.update(time, scrollCurrent, {
@@ -150,11 +164,11 @@ export default function ThreeJSCanvas() {
       cancelAnimationFrame(animationFrameId);
       window.removeEventListener('wheel', onWheel);
       window.removeEventListener('resize', onResize);
-      sunGlow.dispose();
+      sunGlow?.dispose();
       starlightRibbon.dispose();
       renderer.dispose();
     };
-  }, []);
+  }, [includeSunGlow]);
 
   return (
     <>
@@ -162,6 +176,7 @@ export default function ThreeJSCanvas() {
         ref={canvasRef}
         className="ThreeJSCanvas pointer-events-none absolute top-[0px] left-[0px] z-[1] h-[100vh] w-[100vw]"
       />
+      {showControls ? (
       <div className="three-js-canvas-controls pointer-events-auto absolute top-[16px] right-[16px] z-[3] flex flex-col items-end gap-[8px]">
         <button
           type="button"
@@ -368,6 +383,7 @@ export default function ThreeJSCanvas() {
           </div>
         ) : null}
       </div>
+      ) : null}
     </>
   );
 }

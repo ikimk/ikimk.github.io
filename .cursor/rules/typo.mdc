@@ -1,0 +1,56 @@
+---
+description: Strict typography tokens — font size, tracking, weight from typo.ts
+globs: src/**/*.{tsx,ts,scss,css}
+alwaysApply: false
+---
+
+# Typo — Font Harmony
+
+**ALWAYS** use `src/utils/typo.ts` for type: **font-size**, **letter-spacing (tracking)**, **font-weight**, and shared **line-height** tokens.
+
+Font sizes in Typo are golden Scales under the hood (`FontSize1` → `Scale5`, etc.). Spacing (padding/margin/gap/width/height) stays on `goldenRatio.ts`.
+
+## Hard rules
+
+1. **ALWAYS** import `TrackingN`, `FontSizeN`, `FontWeight*` from `@/utils/typo` — never invent `tracking-[-0.13em]` / random em in classes.
+2. When the user says `-13%` / `-0.13em` / `-9%` / `-0.09em` → match the nearest existing Tracking step (or add a new `TrackingN` in `typo.ts` if it’s a new project token).
+3. New type sizes → add `FontSizeN` in `typo.ts` mapped to a golden `Scale*`. Do not hardcode px for type.
+4. When the user gives a **new font or type value** → **update `typo.ts` first** (and `typo.scss` if the family changes), then wire UI to the token.
+5. If chat does **not** specify tracking, weight, or line-height → use `TrackingAuto`, `FontWeightAuto`, `LineHeightAuto`.
+6. Non-token tracking/size/weight **only** when the user explicitly overrides in chat.
+
+```ts
+import {
+  FontSize2,
+  Tracking1,
+  TrackingAuto,
+  FontWeightBold,
+  FontWeightAuto,
+  LineHeightAuto,
+} from '@/utils/typo';
+
+// ✅ specified
+style={{ fontSize: FontSize2, letterSpacing: Tracking1, fontWeight: FontWeightBold }}
+
+// ✅ not specified → Auto
+style={{ fontSize: FontSize2, letterSpacing: TrackingAuto, fontWeight: FontWeightAuto, lineHeight: LineHeightAuto }}
+
+// ❌
+className="text-[18.41px] tracking-[-0.13em] font-[700]"
+```
+
+## Current tokens
+
+| Token | Value | Use |
+|-------|--------|-----|
+| `TrackingAuto` | `normal` | default when tracking not specified |
+| `Tracking1` | `-0.13em` | header / nav |
+| `Tracking2` | `-0.09em` | display / hero |
+| `FontSize1` | Scale5 `204.26` | display / hero |
+| `FontSize2` | Scale10 `18.41` | header / UI |
+| `FontWeightAuto` | `400` | default when weight not specified |
+| `FontWeightRegular` | `400` | body / links |
+| `FontWeightSemiBold` | `600` | logo “Code” |
+| `FontWeightBold` | `700` | logo / display |
+| `LineHeightAuto` | `normal` | default when line-height not specified |
+| `LineHeightSolid` | `1` | tight display |

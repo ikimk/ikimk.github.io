@@ -10,9 +10,8 @@ module.exports = {
   ],
   theme: {
     fontFamily: {
-      body: [
-        'Inter',
-      ],
+      body: ['Open Sans', 'sans-serif'],
+      sans: ['Open Sans', 'sans-serif'],
     },
     extend: {
       colors: {

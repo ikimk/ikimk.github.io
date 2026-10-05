@@ -6,6 +6,8 @@
  * See Doc/threeJS/ThreeJSComponents.md for effect names.
  */
 
+import { ThreeColorWarmGradient } from '@/components/threejs/threeJSColors';
+
 /** Scroll smoothing (host loop, not an effect) */
 export const LerpEase = 0.07;
 export const RecoverLerp = 0.05;
@@ -48,7 +50,7 @@ export const GRADIENTCLOUD_DEFAULTS = {
   grain_intensity: 0.13,
   noise_size: 0.85,
   rotation_speed: 1.3, // degrees per second — keeps spinning
-  colors: ['#6a1c0a', '#ff6a14', '#ffe89c'] as [string, string, string],
+  colors: ThreeColorWarmGradient,
 };
 
 /** Live GradientCloud knobs — wire when GradientCloud is mounted again */

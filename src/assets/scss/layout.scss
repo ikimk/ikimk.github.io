@@ -8,8 +8,9 @@ body,
 }
 
 body {
-  background: #0A0A0A;
-  color: white;
+  /* tokens from src/utils/color.ts via --color-* on <html> */
+  background: var(--color-black, #000000);
+  color: var(--color-cream, #e8e2db);
 }
 
 .block-container {

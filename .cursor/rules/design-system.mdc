@@ -1,0 +1,25 @@
+---
+description: Design system — tokens live in src/utils; update files before UI
+globs: src/**/*.{tsx,ts,scss,css}
+alwaysApply: true
+---
+
+# Design System — Token-First
+
+All visual tokens live in `src/utils/` (plus Three.js colors in `threeJSColors.ts`).
+
+| Concern | File |
+|---------|------|
+| Space / size (pad, margin, gap, w/h) | `src/utils/goldenRatio.ts` |
+| Type (size, tracking, weight, line-height) | `src/utils/typo.ts` |
+| UI colors (exact names: `ColorBlack`…) | `src/utils/color.ts` |
+| Three.js / shader colors | `src/components/threejs/threeJSColors.ts` |
+
+## When the user gives something new
+
+1. **New font / type value** (family, size, tracking, weight, line-height) → **update `typo.ts` first** (and font load in `typo.scss` / layout if family changes), then wire components to the new token.
+2. **New UI color** (hex / name) → **update `color.ts` first** (exact `Color*` name), then wire components. Also refresh `colorCssVars` if used globally.
+3. **New Three.js color** → **update `threeJSColors.ts` first**, then controls / shaders.
+4. **New spacing size** → match / add via `goldenRatio.ts` (`Scale*`), then use it.
+
+Never hardcode a new font or color only in a component. Token file → then usage.

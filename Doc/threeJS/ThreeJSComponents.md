@@ -9,10 +9,12 @@ Names to use when referencing effects in chat or code. Route: `/threejs`.
 | **ThreeJSPlayground** | Page shell (HELLO + canvas) | `src/components/ThreeJSPlayground.tsx` |
 | **ThreeJSCanvas** | Single shared WebGL canvas + control panel | `src/components/ThreeJSCanvas.tsx` |
 | **threeJSControls** | All default values / knobs in one file | `src/components/threejs/threeJSControls.ts` |
+| **threeJSColors** | Effect / shader color tokens (not UI `color.ts`) | `src/components/threejs/threeJSColors.ts` |
 
 Effects are **separate factories** on one canvas. Each gets **only its own params** — changing one effect never updates another.
 
-**Tune defaults:** edit `threeJSControls.ts` (`STARLIGHT_DEFAULTS`, `SUNGLOW_DEFAULTS`, `FILMGRAIN_DEFAULTS`, `GRADIENTCLOUD_DEFAULTS`).
+**Tune defaults:** edit `threeJSControls.ts` (`STARLIGHT_DEFAULTS`, `SUNGLOW_DEFAULTS`, `FILMGRAIN_DEFAULTS`, `GRADIENTCLOUD_DEFAULTS`).  
+**Effect colors:** edit `threeJSColors.ts` (UI palette stays in `src/utils/color.ts`).
 
 ---
 

@@ -8,6 +8,7 @@ import { AppProvider } from '@/app/app';
 import Loading from '@/app/loading';
 import { ConfigProvider, theme } from 'antd';
 import ClientWrapper from '@/app/ClientWrapper';
+import { colorCssVars } from '@/utils/color';
 
 export const metadata: Metadata = {
   metadataBase: new URL('https://AppName.com'),
@@ -49,7 +50,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en">
+    <html lang="en" style={colorCssVars}>
       <head>
         {/* <link rel="preconnect" href="https://fonts.gstatic.com" />
         <link rel="preconnect" href="https://fonts.googleapis.com" /> */}
@@ -68,7 +69,7 @@ export default function RootLayout({
             }}
           >
             <ClientWrapper>
-              {/* <Header /> */}
+              <Header />
               <Suspense fallback={<Loading />}>
                 <main className="Main relative z-[1]">
                   <AppProvider>{children}</AppProvider>
