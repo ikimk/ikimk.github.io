@@ -44,8 +44,8 @@ When the user says change **`grain_intensity`** (or “more/less grain”), scop
 
 | Component | Panel / live key | Defaults |
 |---|---|---|
-| **StarlightRibbon** (FilmGrain section) | `grain_intensity` | `FILMGRAIN_DEFAULTS.grain_intensity` |
-| **GradientCloud** | `gradient_grain_intensity` → `gradientCloudLive.grain_intensity` | `GRADIENTCLOUD_DEFAULTS.grain_intensity` |
+| **StarlightRibbon** (FilmGrain section) | `grain_intensity` / `grain_intensity_to` | `FILMGRAIN_DEFAULTS` |
+| **GradientCloud** (when remounted) | `gradientCloudLive.grain_intensity` | `GRADIENTCLOUD_DEFAULTS.grain_intensity` |
 
 - Do **not** wire GradientCloud’s grain into Starlight (or the reverse).
 - If a new effect gets FilmGrain later, give it its **own** intensity key + control under that effect’s section.
@@ -53,4 +53,5 @@ When the user says change **`grain_intensity`** (or “more/less grain”), scop
 ## Exceptions
 
 - **GradientCloud** is allowed its **own canvas** so it can fill a div background (e.g. `CTADiv`). Do not put GradientCloud on the shared `ThreeJSCanvas`.
+- GradientCloud look is **complete** — files kept (`GradientCloud.tsx`, `createGradientCloud.ts`, `CTADiv.tsx`, `GRADIENTCLOUD_DEFAULTS`) but **not mounted** on `/threejs` until needed again.
 - Only add another canvas if the user explicitly asks for a separate WebGL context. Default for page-edge effects (StarlightRibbon, SunGlow, FilmGrain) remains one shared canvas.

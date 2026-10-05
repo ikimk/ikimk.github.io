@@ -9,7 +9,6 @@ import {
   STARLIGHT_DEFAULTS,
   SUNGLOW_DEFAULTS,
   THREEJS_PANEL_DEFAULTS,
-  gradientCloudLive,
   type ThreeJSPanelParams,
 } from '@/components/threejs/threeJSControls';
 
@@ -51,9 +50,6 @@ export default function ThreeJSCanvas() {
   function setParam(key: keyof ThreeJSPanelParams, value: number) {
     paramsRef.current[key] = value;
     setParams((prev) => ({ ...prev, [key]: value }));
-    if (key === 'gradient_grain_intensity') gradientCloudLive.grain_intensity = value;
-    if (key === 'noise_size') gradientCloudLive.noise_size = value;
-    if (key === 'rotation_speed') gradientCloudLive.rotation_speed = value;
   }
 
   useEffect(() => {
@@ -85,7 +81,7 @@ export default function ThreeJSCanvas() {
     camera.position.set(0, 0, 6.5);
     camera.lookAt(0, 0, 0);
 
-    // shared-canvas effects only — GradientCloud has its own canvas (see CTADiv)
+    // shared-canvas effects only — GradientCloud kept for later (not mounted here)
     // FilmGrain is opt-in GLSL on selected effects (currently StarlightRibbon only)
     const sunGlow = createSunGlow(scene, SUNGLOW_DEFAULTS);
     const starlightRibbon = createStarlightRibbon(scene, STARLIGHT_DEFAULTS);
@@ -177,56 +173,6 @@ export default function ThreeJSCanvas() {
         </button>
         {controlsOpen ? (
           <div className="three-js-canvas-controls-panel flex max-h-[calc(100vh-72px)] w-[240px] flex-col gap-[10px] overflow-y-auto rounded-[12px] bg-[#111111cc] p-[14px] text-[#ffffff]">
-            <ControlSection title="GradientCloud">
-              <label className="three-js-canvas-control flex flex-col gap-[4px]">
-                <span className="three-js-canvas-control-label text-[12px] leading-[16px] text-[#ffffffcc]">
-                  grain_intensity {params.gradient_grain_intensity.toFixed(2)}
-                </span>
-                <input
-                  className="three-js-canvas-control-input w-full"
-                  type="range"
-                  min="0"
-                  max="0.45"
-                  step="0.01"
-                  value={params.gradient_grain_intensity}
-                  onChange={(e) =>
-                    setParam('gradient_grain_intensity', Number(e.target.value))
-                  }
-                />
-              </label>
-              <label className="three-js-canvas-control flex flex-col gap-[4px]">
-                <span className="three-js-canvas-control-label text-[12px] leading-[16px] text-[#ffffffcc]">
-                  noise_size {params.noise_size.toFixed(2)}
-                </span>
-                <input
-                  className="three-js-canvas-control-input w-full"
-                  type="range"
-                  min="0.30"
-                  max="2.50"
-                  step="0.05"
-                  value={params.noise_size}
-                  onChange={(e) =>
-                    setParam('noise_size', Number(e.target.value))
-                  }
-                />
-              </label>
-              <label className="three-js-canvas-control flex flex-col gap-[4px]">
-                <span className="three-js-canvas-control-label text-[12px] leading-[16px] text-[#ffffffcc]">
-                  rotation_speed {params.rotation_speed.toFixed(0)}°/s
-                </span>
-                <input
-                  className="three-js-canvas-control-input w-full"
-                  type="range"
-                  min="0"
-                  max="90"
-                  step="1"
-                  value={params.rotation_speed}
-                  onChange={(e) =>
-                    setParam('rotation_speed', Number(e.target.value))
-                  }
-                />
-              </label>
-            </ControlSection>
             <ControlSection title="StarlightRibbon">
             <label className="three-js-canvas-control flex flex-col gap-[4px]">
               <span className="three-js-canvas-control-label text-[12px] leading-[16px] text-[#ffffffcc]">
