@@ -1,3 +1,103 @@
-/* Header layout lives in Tailwind on BlockHeader — keep file for import stability */
-.BlockHeader {
+/**
+ * Full `.block-header-logo` glitch — from the Rockstar Games website logo SVG.
+ * Blue path plays the sequence twice, red path the other sequence twice,
+ * both end at translate(0) so the logo looks normal again while still hovered.
+ *
+ * Source (Rockstar Games website CSS classes):
+ *   ._19v0h083  color #418fa7  animation _19v0h080  0.4s × 2
+ *   ._19v0h084  color #dc3744  animation _19v0h081  0.4s × 2
+ */
+
+.block-header-logo-face {
+  position: relative;
+  z-index: 2;
+  white-space: nowrap;
+}
+
+.block-header-logo-ghost {
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 1;
+  opacity: 0;
+  pointer-events: none;
+  white-space: nowrap;
+  transform: translate(0);
+  transition: color 0.1s;
+}
+
+.block-header-logo-ghost-cyan {
+  color: var(--color-glitch-blue, #418fa7);
+}
+
+.block-header-logo-ghost-red {
+  color: var(--color-glitch-red, #dc3744);
+}
+
+.block-header-logo:hover .block-header-logo-ghost-cyan,
+.block-header-logo:focus-visible .block-header-logo-ghost-cyan {
+  opacity: 1;
+  animation-name: block-header-logo-glitch-blue;
+  animation-duration: 0.4s;
+  animation-iteration-count: 2;
+}
+
+.block-header-logo:hover .block-header-logo-ghost-red,
+.block-header-logo:focus-visible .block-header-logo-ghost-red {
+  opacity: 1;
+  animation-name: block-header-logo-glitch-red;
+  animation-duration: 0.4s;
+  animation-iteration-count: 2;
+}
+
+/* blue — bottom side, ends centered */
+@keyframes block-header-logo-glitch-blue {
+  0% {
+    transform: translate(0);
+  }
+  20% {
+    transform: translate(-2px, 3px);
+  }
+  40% {
+    transform: translate(-1px, -1px);
+  }
+  60% {
+    transform: translate(1px, 2px);
+  }
+  80% {
+    transform: translate(1px, 1px);
+  }
+  100% {
+    transform: translate(0);
+  }
+}
+
+/* red — top side, ends centered */
+@keyframes block-header-logo-glitch-red {
+  0% {
+    transform: translate(0);
+  }
+  20% {
+    transform: translate(1px, -2px);
+  }
+  40% {
+    transform: translate(-1px, 1px);
+  }
+  60% {
+    transform: translate(-1px, -1px);
+  }
+  80% {
+    transform: translate(0, 1px);
+  }
+  100% {
+    transform: translate(0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .block-header-logo:hover .block-header-logo-ghost,
+  .block-header-logo:focus-visible .block-header-logo-ghost {
+    animation: none;
+    opacity: 0;
+  }
 }

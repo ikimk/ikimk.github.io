@@ -14,7 +14,7 @@ Names to use when referencing effects in chat or code. Route: `/threejs`.
 Effects are **separate factories** on one canvas. Each gets **only its own params** — changing one effect never updates another.
 
 **Tune defaults:** edit `threeJSControls.ts` (`STARLIGHT_DEFAULTS`, `SUNGLOW_DEFAULTS`, `FILMGRAIN_DEFAULTS`, `GRADIENTCLOUD_DEFAULTS`).  
-**Effect colors:** edit `threeJSColors.ts` (UI palette stays in `src/utils/color.ts`).
+**Effect colors:** edit `threeJSColors.ts` (UI palette stays in `src/utils/DesignSystem/color.ts`).
 
 ---
 

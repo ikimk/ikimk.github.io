@@ -6,15 +6,15 @@ alwaysApply: false
 
 # Golden Ratio — Strict Visual Scale
 
-**ALWAYS** use values from `src/utils/goldenRatio.ts` for **padding**, **margin**, **height**, **width**, and **gap**.
+**ALWAYS** use values from `src/utils/DesignSystem/goldenRatio.ts` for **padding**, **margin**, **height**, **width**, and **gap**.
 
-**Type** (font-size / tracking / weight) → `src/utils/typo.ts` (sizes map to golden Scales). See `.cursor/rules/typo.mdc`.
+**Type** (font-size / tracking / weight) → `src/utils/DesignSystem/typo.ts` (sizes map to golden Scales). See `.cursor/rules/typo.mdc`.
 
 Base: **1400px** · φ **1.618** · steps Scale1 → Scale18.
 
 ## Hard rules
 
-1. **ALWAYS AND ALWAYS** import and use `ScaleN` / `GOLDEN_SCALE` / helpers from `goldenRatio.ts`. Never invent px. Never paste scale numbers into class strings when a Scale exists.
+1. **ALWAYS AND ALWAYS** import and use `ScaleN` / `GOLDEN_SCALE` / helpers from `@/utils/DesignSystem` (or `.../goldenRatio`). Never invent px. Never paste scale numbers into class strings when a Scale exists.
 2. When the user (or Figma) says a px value (e.g. `29.78px`, `18.41`, `~100px`):
    - **Exact match** → use that Scale (`29.78` → `Scale9`).
    - **Near match / freestyle** → `nearestGoldenScale` / `snapToGolden` and use that Scale.
@@ -23,7 +23,7 @@ Base: **1400px** · φ **1.618** · steps Scale1 → Scale18.
 5. Tailwind: layout/color utilities OK; size tokens must come from Scale*. Never `p-4` / theme spacing.
 
 ```ts
-import { Scale8, Scale9, Scale10, Scale11 } from '@/utils/goldenRatio';
+import { Scale8, Scale9, Scale10, Scale11 } from '@/utils/DesignSystem';
 
 // User said "29.78px" / "18.41px" / "11.37px" → match Scales, don't hardcode
 style={{ fontSize: Scale10, paddingLeft: Scale8, gap: Scale11 }} // Scale9 = 29.78

@@ -2,62 +2,97 @@
 import React from 'react';
 import Link from 'next/link';
 import '@/assets/scss/header.scss';
-import { ColorCream, ColorWhite } from '@/utils/color';
-import { Scale9, Scale10, Scale11 } from '@/utils/goldenRatio';
+import useUtilBreakpoint from '@/utils/useUtilBreakpoint';
 import {
+  ColorCream,
+  ColorGlitchBlue,
+  ColorGlitchRed,
+  ColorWhite,
   FontSize2,
   FontWeightBold,
   FontWeightRegular,
   FontWeightSemiBold,
+  Scale9,
+  Scale10,
+  Scale11,
   Tracking1,
-} from '@/utils/typo';
+} from '@/utils/DesignSystem';
+
+function LogoMark({
+  className,
+  hidden,
+}: {
+  className: string;
+  hidden?: boolean;
+}) {
+  return (
+    <span className={className} aria-hidden={hidden || undefined}>
+      <span
+        className="block-header-logo-i"
+        style={{ fontWeight: FontWeightBold }}
+      >
+        i
+      </span>
+      <span
+        className="block-header-logo-code"
+        style={{ fontWeight: FontWeightSemiBold }}
+      >
+        Code
+      </span>
+      <span
+        className="block-header-logo-ayush"
+        style={{ fontWeight: FontWeightBold }}
+      >
+        AYUSH
+      </span>
+    </span>
+  );
+}
 
 export const Header = () => {
+  const { SM } = useUtilBreakpoint();
+  const padX = SM ? Scale9 : Scale10;
+  const padY = Scale10;
+  const linkGap = Scale11;
+
   return (
     <header className="BlockHeader pointer-events-none absolute top-[0px] left-[0px] z-[2] w-full">
       <nav
         className="block-header-nav pointer-events-auto flex w-full items-center justify-between"
         style={{
-          paddingLeft: Scale9,
-          paddingRight: Scale9,
-          paddingTop: Scale10,
-          paddingBottom: Scale10,
+          paddingLeft: padX,
+          paddingRight: padX,
+          paddingTop: padY,
+          paddingBottom: padY,
         }}
       >
         <Link
           href="/"
-          className="block-header-logo"
+          className="block-header-logo relative inline-flex shrink-0"
           style={{
             color: ColorWhite,
             fontSize: FontSize2,
             lineHeight: `${FontSize2}px`,
             letterSpacing: Tracking1,
+            ['--color-glitch-blue' as string]: ColorGlitchBlue,
+            ['--color-glitch-red' as string]: ColorGlitchRed,
           }}
           aria-label="iCodeAYUSH home"
         >
-          <span
-            className="block-header-logo-i"
-            style={{ fontWeight: FontWeightBold }}
-          >
-            i
-          </span>
-          <span
-            className="block-header-logo-code"
-            style={{ fontWeight: FontWeightSemiBold }}
-          >
-            Code
-          </span>
-          <span
-            className="block-header-logo-ayush"
-            style={{ fontWeight: FontWeightBold }}
-          >
-            AYUSH
-          </span>
+          <LogoMark
+            className="block-header-logo-ghost block-header-logo-ghost-cyan"
+            hidden
+          />
+          <LogoMark
+            className="block-header-logo-ghost block-header-logo-ghost-red"
+            hidden
+          />
+          <LogoMark className="block-header-logo-face" />
         </Link>
 
         <div
-          className="block-header-links flex items-center"
-          style={{ gap: Scale11 }}
+          className="block-header-links flex shrink-0 items-center"
+          style={{ gap: linkGap }}
         >
           <Link
             href="#work"

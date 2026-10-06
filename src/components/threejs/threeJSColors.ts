@@ -1,6 +1,6 @@
 /**
  * Three.js color tokens — shaders / effects only.
- * UI palette lives in `src/utils/color.ts` (do not mix).
+ * UI palette lives in `src/utils/DesignSystem/color.ts` (do not mix).
  */
 
 /** GradientCloud wash (deep → mid → light) */

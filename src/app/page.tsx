@@ -1,7 +1,7 @@
 'use client';
 import React from 'react';
 import BlockHero from '@/components/blocks/BlockHero';
-import { ColorBlack } from '@/utils/color';
+import { ColorBlack } from '@/utils/DesignSystem';
 
 export default function HomePage() {
   return (

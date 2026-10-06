@@ -8,7 +8,7 @@ import { AppProvider } from '@/app/app';
 import Loading from '@/app/loading';
 import { ConfigProvider, theme } from 'antd';
 import ClientWrapper from '@/app/ClientWrapper';
-import { colorCssVars } from '@/utils/color';
+import { colorCssVars } from '@/utils/DesignSystem';
 
 export const metadata: Metadata = {
   metadataBase: new URL('https://AppName.com'),

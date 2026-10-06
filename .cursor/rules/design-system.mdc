@@ -1,25 +1,34 @@
 ---
-description: Design system — tokens live in src/utils; update files before UI
+description: DesignSystem tokens — follow src/utils/DesignSystem for all UI
 globs: src/**/*.{tsx,ts,scss,css}
 alwaysApply: true
 ---
 
-# Design System — Token-First
+# DesignSystem — Token-First
 
-All visual tokens live in `src/utils/` (plus Three.js colors in `threeJSColors.ts`).
+When the user says **“follow DesignSystem”** / **`@DesignSystem`** / freestyle UI → use **only** tokens from:
+
+`src/utils/DesignSystem/`
 
 | Concern | File |
 |---------|------|
-| Space / size (pad, margin, gap, w/h) | `src/utils/goldenRatio.ts` |
-| Type (size, tracking, weight, line-height) | `src/utils/typo.ts` |
-| UI colors (exact names: `ColorBlack`…) | `src/utils/color.ts` |
-| Three.js / shader colors | `src/components/threejs/threeJSColors.ts` |
+| Space / size (pad, margin, gap, w/h) | `goldenRatio.ts` |
+| Type (size, tracking, weight, line-height) | `typo.ts` |
+| UI colors (exact names: `ColorBlack`…) | `color.ts` |
+| Barrel re-export | `index.ts` → `@/utils/DesignSystem` |
+| Three.js / shader colors | `src/components/threejs/threeJSColors.ts` (not UI) |
+
+## Import
+
+```ts
+import { Scale10, ColorCream, Tracking1, FontSize2 } from '@/utils/DesignSystem';
+```
 
 ## When the user gives something new
 
-1. **New font / type value** (family, size, tracking, weight, line-height) → **update `typo.ts` first** (and font load in `typo.scss` / layout if family changes), then wire components to the new token.
-2. **New UI color** (hex / name) → **update `color.ts` first** (exact `Color*` name), then wire components. Also refresh `colorCssVars` if used globally.
-3. **New Three.js color** → **update `threeJSColors.ts` first**, then controls / shaders.
-4. **New spacing size** → match / add via `goldenRatio.ts` (`Scale*`), then use it.
+1. **New font / type value** → update `DesignSystem/typo.ts` first (and `typo.scss` if family changes), then wire UI.
+2. **New UI color** → update `DesignSystem/color.ts` first (exact `Color*` + `colorCssVars` if needed), then wire UI.
+3. **New Three.js color** → update `threeJSColors.ts` first.
+4. **New spacing size** → match / add via `DesignSystem/goldenRatio.ts` (`Scale*`), then use it.
 
-Never hardcode a new font or color only in a component. Token file → then usage.
+Never hardcode a new font, color, or size only in a component. Token file → then usage.

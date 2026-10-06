@@ -53,7 +53,7 @@ When the user says change **`grain_intensity`** (or “more/less grain”), scop
 ## Colors
 
 - Effect / shader hex → `src/components/threejs/threeJSColors.ts` (`ThreeColor*`).
-- UI palette → `src/utils/color.ts` (`Color*`). Do not mix.
+- UI palette → `src/utils/DesignSystem/color.ts` (`Color*`). Do not mix.
 
 ## Exceptions
 
