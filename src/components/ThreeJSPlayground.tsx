@@ -1,14 +1,15 @@
 'use client';
 import React from 'react';
 import ThreeJSCanvas from '@/components/ThreeJSCanvas';
+import { ColorBlackDarkest } from '@/utils/DesignSystem';
 
 export default function ThreeJSPlayground() {
   return (
-    <div className="ThreeJSPlayground px-[20px] flex flex-col gap-[20px] justify-center items-center relative w-full h-[100vh] overflow-hidden">
+    <div
+      className="ThreeJSPlayground relative h-[100dvh] min-h-[100vh] w-full overflow-hidden"
+      style={{ backgroundColor: ColorBlackDarkest }}
+    >
       <ThreeJSCanvas />
-      <p className="three-js-playground-text pointer-events-none inset-[0px] flex items-center justify-center text-[130px] font-[600] tracking-[-0.08em] text-[#ffffff]">
-        Hello World.
-      </p>
     </div>
   );
 }

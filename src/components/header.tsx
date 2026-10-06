@@ -1,6 +1,7 @@
 'use client';
 import React from 'react';
 import Link from 'next/link';
+import { usePathname } from 'next/navigation';
 import '@/assets/scss/header.scss';
 import useUtilBreakpoint from '@/utils/useUtilBreakpoint';
 import {
@@ -50,10 +51,14 @@ function LogoMark({
 }
 
 export const Header = () => {
+  const pathname = usePathname();
   const { SM } = useUtilBreakpoint();
   const padX = SM ? Scale9 : Scale10;
   const padY = Scale10;
   const linkGap = Scale11;
+
+  // playground — canvas + controls only
+  if (pathname === '/test') return null;
 
   return (
     <header className="BlockHeader pointer-events-none absolute top-[0px] left-[0px] z-[2] w-full">

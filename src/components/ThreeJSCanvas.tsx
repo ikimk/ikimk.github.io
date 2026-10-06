@@ -1,10 +1,12 @@
 'use client';
 import React, { useEffect, useRef, useState } from 'react';
 import * as THREE from 'three';
+import { createPSGrid } from '@/components/threejs/createPSGrid';
 import { createStarlightRibbon } from '@/components/threejs/createStarlightRibbon';
 import { createSunGlow } from '@/components/threejs/createSunGlow';
 import {
   LerpEase,
+  PSGRID_DEFAULTS,
   RecoverLerp,
   STARLIGHT_DEFAULTS,
   SUNGLOW_DEFAULTS,
@@ -42,15 +44,18 @@ function ControlSection({
 }
 
 type ThreeJSCanvasProps = {
-  /** Debug panel — on for `/threejs`, off for production pages */
+  /** Debug panel — on for `/test`, off for production pages */
   showControls?: boolean;
   /** Top edge sun (playground). Homepage Figma uses bottom ribbon only. */
   includeSunGlow?: boolean;
+  /** Full-screen PSGrid wallpaper behind edge effects */
+  includePSGrid?: boolean;
 };
 
 export default function ThreeJSCanvas({
   showControls = true,
   includeSunGlow = true,
+  includePSGrid = true,
 }: ThreeJSCanvasProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const paramsRef = useRef({ ...THREEJS_PANEL_DEFAULTS });
@@ -93,6 +98,9 @@ export default function ThreeJSCanvas({
 
     // shared-canvas effects only — GradientCloud kept for later (not mounted here)
     // FilmGrain is opt-in GLSL on selected effects (currently StarlightRibbon only)
+    const psGrid = includePSGrid
+      ? createPSGrid(scene, PSGRID_DEFAULTS)
+      : null;
     const sunGlow = includeSunGlow
       ? createSunGlow(scene, SUNGLOW_DEFAULTS)
       : null;
@@ -104,6 +112,7 @@ export default function ThreeJSCanvas({
       const dist = camera.position.z;
       const viewH = 2 * dist * Math.tan((camera.fov * Math.PI) / 360);
       const viewW = viewH * camera.aspect;
+      psGrid?.resize(viewW, viewH, WindowWidth, WindowHeight);
       sunGlow?.resize(viewW, viewH);
       starlightRibbon.resize(viewW, viewH, WindowHeight);
     }
@@ -123,6 +132,23 @@ export default function ThreeJSCanvas({
 
       const time = clock.getElapsedTime();
       const p = paramsRef.current;
+      if (psGrid) {
+        psGrid.update(time, scrollCurrent, {
+          scale: p.scale,
+          glyph_size: p.glyph_size,
+          stroke: p.stroke,
+          opacity: p.opacity,
+          opacity_to: p.opacity_to,
+          noise_scale: p.noise_scale,
+          noise_amount: p.noise_amount,
+          noise_speed: p.noise_speed,
+          glyph_speed: p.glyph_speed,
+          size_min: p.size_min,
+          bend: p.bend,
+          bend_to: p.bend_to,
+          fade_top: p.fade_top,
+        });
+      }
       if (sunGlow) {
         sunGlow.update(time, scrollCurrent, {
           sun_glow: p.sun_glow,
@@ -164,11 +190,12 @@ export default function ThreeJSCanvas({
       cancelAnimationFrame(animationFrameId);
       window.removeEventListener('wheel', onWheel);
       window.removeEventListener('resize', onResize);
+      psGrid?.dispose();
       sunGlow?.dispose();
       starlightRibbon.dispose();
       renderer.dispose();
     };
-  }, [includeSunGlow]);
+  }, [includeSunGlow, includePSGrid]);
 
   return (
     <>
@@ -188,6 +215,210 @@ export default function ThreeJSCanvas({
         </button>
         {controlsOpen ? (
           <div className="three-js-canvas-controls-panel flex max-h-[calc(100vh-72px)] w-[240px] flex-col gap-[10px] overflow-y-auto rounded-[12px] bg-[#111111cc] p-[14px] text-[#ffffff]">
+            <ControlSection title="PSGrid">
+              <label className="three-js-canvas-control flex flex-col gap-[4px]">
+                <span className="three-js-canvas-control-label text-[12px] leading-[16px] text-[#ffffffcc]">
+                  scale {params.scale.toFixed(0)}
+                </span>
+                <input
+                  className="three-js-canvas-control-input w-full"
+                  type="range"
+                  min="6"
+                  max="28"
+                  step="1"
+                  value={params.scale}
+                  onChange={(e) => setParam('scale', Number(e.target.value))}
+                />
+              </label>
+              <label className="three-js-canvas-control flex flex-col gap-[4px]">
+                <span className="three-js-canvas-control-label text-[12px] leading-[16px] text-[#ffffffcc]">
+                  glyph_size {params.glyph_size.toFixed(2)}
+                </span>
+                <input
+                  className="three-js-canvas-control-input w-full"
+                  type="range"
+                  min="0.08"
+                  max="0.28"
+                  step="0.01"
+                  value={params.glyph_size}
+                  onChange={(e) =>
+                    setParam('glyph_size', Number(e.target.value))
+                  }
+                />
+              </label>
+              <label className="three-js-canvas-control flex flex-col gap-[4px]">
+                <span className="three-js-canvas-control-label text-[12px] leading-[16px] text-[#ffffffcc]">
+                  stroke {params.stroke.toFixed(3)}
+                </span>
+                <input
+                  className="three-js-canvas-control-input w-full"
+                  type="range"
+                  min="0.01"
+                  max="0.08"
+                  step="0.002"
+                  value={params.stroke}
+                  onChange={(e) => setParam('stroke', Number(e.target.value))}
+                />
+              </label>
+              <label className="three-js-canvas-control flex flex-col gap-[4px]">
+                <span className="three-js-canvas-control-label text-[12px] leading-[16px] text-[#ffffffcc]">
+                  opacity {params.opacity.toFixed(2)}
+                </span>
+                <input
+                  className="three-js-canvas-control-input w-full"
+                  type="range"
+                  min="0"
+                  max="1"
+                  step="0.01"
+                  value={params.opacity}
+                  onChange={(e) => setParam('opacity', Number(e.target.value))}
+                />
+              </label>
+              <label className="three-js-canvas-control flex flex-col gap-[4px]">
+                <span className="three-js-canvas-control-label text-[12px] leading-[16px] text-[#ffffffcc]">
+                  opacity_to {params.opacity_to.toFixed(2)}
+                </span>
+                <input
+                  className="three-js-canvas-control-input w-full"
+                  type="range"
+                  min="0"
+                  max="1"
+                  step="0.01"
+                  value={params.opacity_to}
+                  onChange={(e) =>
+                    setParam('opacity_to', Number(e.target.value))
+                  }
+                />
+              </label>
+              <label className="three-js-canvas-control flex flex-col gap-[4px]">
+                <span className="three-js-canvas-control-label text-[12px] leading-[16px] text-[#ffffffcc]">
+                  noise_scale {params.noise_scale.toFixed(2)}
+                </span>
+                <input
+                  className="three-js-canvas-control-input w-full"
+                  type="range"
+                  min="0.02"
+                  max="0.40"
+                  step="0.01"
+                  value={params.noise_scale}
+                  onChange={(e) =>
+                    setParam('noise_scale', Number(e.target.value))
+                  }
+                />
+              </label>
+              <label className="three-js-canvas-control flex flex-col gap-[4px]">
+                <span className="three-js-canvas-control-label text-[12px] leading-[16px] text-[#ffffffcc]">
+                  noise_amount {params.noise_amount.toFixed(2)}
+                </span>
+                <input
+                  className="three-js-canvas-control-input w-full"
+                  type="range"
+                  min="0"
+                  max="1"
+                  step="0.01"
+                  value={params.noise_amount}
+                  onChange={(e) =>
+                    setParam('noise_amount', Number(e.target.value))
+                  }
+                />
+              </label>
+              <label className="three-js-canvas-control flex flex-col gap-[4px]">
+                <span className="three-js-canvas-control-label text-[12px] leading-[16px] text-[#ffffffcc]">
+                  noise_speed {params.noise_speed.toFixed(2)}
+                </span>
+                <input
+                  className="three-js-canvas-control-input w-full"
+                  type="range"
+                  min="0"
+                  max="2"
+                  step="0.01"
+                  value={params.noise_speed}
+                  onChange={(e) =>
+                    setParam('noise_speed', Number(e.target.value))
+                  }
+                />
+              </label>
+              <label className="three-js-canvas-control flex flex-col gap-[4px]">
+                <span className="three-js-canvas-control-label text-[12px] leading-[16px] text-[#ffffffcc]">
+                  glyph_speed {params.glyph_speed.toFixed(2)}
+                </span>
+                <input
+                  className="three-js-canvas-control-input w-full"
+                  type="range"
+                  min="0"
+                  max="1.2"
+                  step="0.01"
+                  value={params.glyph_speed}
+                  onChange={(e) =>
+                    setParam('glyph_speed', Number(e.target.value))
+                  }
+                />
+              </label>
+              <label className="three-js-canvas-control flex flex-col gap-[4px]">
+                <span className="three-js-canvas-control-label text-[12px] leading-[16px] text-[#ffffffcc]">
+                  size_min {params.size_min.toFixed(2)}
+                </span>
+                <input
+                  className="three-js-canvas-control-input w-full"
+                  type="range"
+                  min="0.02"
+                  max="0.50"
+                  step="0.01"
+                  value={params.size_min}
+                  onChange={(e) =>
+                    setParam('size_min', Number(e.target.value))
+                  }
+                />
+              </label>
+              <label className="three-js-canvas-control flex flex-col gap-[4px]">
+                <span className="three-js-canvas-control-label text-[12px] leading-[16px] text-[#ffffffcc]">
+                  fade_top {params.fade_top.toFixed(2)}
+                </span>
+                <input
+                  className="three-js-canvas-control-input w-full"
+                  type="range"
+                  min="0"
+                  max="1"
+                  step="0.01"
+                  value={params.fade_top}
+                  onChange={(e) =>
+                    setParam('fade_top', Number(e.target.value))
+                  }
+                />
+              </label>
+              <ControlSection title="Bend">
+                <label className="three-js-canvas-control flex flex-col gap-[4px]">
+                  <span className="three-js-canvas-control-label text-[12px] leading-[16px] text-[#ffffffcc]">
+                    bend {params.bend.toFixed(2)}
+                  </span>
+                  <input
+                    className="three-js-canvas-control-input w-full"
+                    type="range"
+                    min="0"
+                    max="2"
+                    step="0.01"
+                    value={params.bend}
+                    onChange={(e) => setParam('bend', Number(e.target.value))}
+                  />
+                </label>
+                <label className="three-js-canvas-control flex flex-col gap-[4px]">
+                  <span className="three-js-canvas-control-label text-[12px] leading-[16px] text-[#ffffffcc]">
+                    bend_to {params.bend_to.toFixed(2)}
+                  </span>
+                  <input
+                    className="three-js-canvas-control-input w-full"
+                    type="range"
+                    min="0"
+                    max="2"
+                    step="0.01"
+                    value={params.bend_to}
+                    onChange={(e) =>
+                      setParam('bend_to', Number(e.target.value))
+                    }
+                  />
+                </label>
+              </ControlSection>
+            </ControlSection>
             <ControlSection title="StarlightRibbon">
             <label className="three-js-canvas-control flex flex-col gap-[4px]">
               <span className="three-js-canvas-control-label text-[12px] leading-[16px] text-[#ffffffcc]">

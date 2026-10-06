@@ -6,35 +6,60 @@ alwaysApply: false
 
 # Color — UI Palette Tokens
 
-**ALWAYS** use `src/utils/DesignSystem/color.ts` with **exact color name** variables (`ColorBlack`, `ColorWhite`, `ColorCream`…).
+**ALWAYS** use `src/utils/DesignSystem/color.ts` with **exact color name** variables (`ColorBlack`, `ColorCream`…).
 
 No role aliases (`ColorBg` / `ColorText` / `ColorLogo`). Three.js → `src/components/threejs/threeJSColors.ts`.
 
 ## Hard rules
 
-1. **ALWAYS** import exact `Color*` names from `@/utils/DesignSystem` — never paste `#E8E2DB` / `#000000` into className when a token exists.
+1. **ALWAYS** import exact `Color*` names from `@/utils/DesignSystem` — never paste hex into className when a token exists.
 2. When the user gives a **new UI color** (hex / name) → **update `DesignSystem/color.ts` first** (exact `Color*` name + `colorCssVars` if needed), then wire UI.
 3. Match an existing `Color*` when the hex already exists; otherwise add the token before using it in components.
 4. Non-token hex **only** when the user explicitly overrides in chat.
 5. New Three.js effect colors → update `threeJSColors.ts` first (`ThreeColor*`), not DesignSystem color.
 
 ```ts
-import { ColorBlack, ColorCream, ColorWhite } from '@/utils/DesignSystem';
+import { ColorBlackDarkest, ColorCream, ColorWhite } from '@/utils/DesignSystem';
 
 // ✅
-style={{ backgroundColor: ColorBlack, color: ColorCream }}
+style={{ backgroundColor: ColorBlackDarkest, color: ColorCream }}
 style={{ color: ColorWhite }}
 
 // ❌ role aliases / hardcoded hex
-className="bg-[#000000] text-[#E8E2DB]"
+className="bg-[#010703] text-[#E8E2DB]"
 ```
 
 ## Current UI tokens
 
+### Blacks (dark → less dark)
+
 | Token | Hex |
 |-------|-----|
-| `ColorBlack` | `#000000` |
-| `ColorWhite` | `#FFFFFF` |
+| `ColorBlackDarkest` | `#010703` |
+| `ColorBlack` | `#0A0A0A` |
+| `ColorGrayBlack` | `#1B1B1B` |
+
+### Action
+
+| Token | Hex |
+|-------|-----|
+| `ColorOrange` | `#FF5320` |
+| `ColorBlue` | `#00A1DC` |
+| `ColorGreen` | `#00B327` |
+
+### Whites (light → dark)
+
+| Token | Hex |
+|-------|-----|
+| `ColorWhite` | `#F0F0EF` |
 | `ColorCream` | `#E8E2DB` |
+| `ColorAsh` | `#CCC7C6` |
+| `ColorPearl` | `#C7C7CF` |
+| `ColorGray` | `#BBBBBB` |
+
+### Logo glitch (Rockstar Games website)
+
+| Token | Hex |
+|-------|-----|
 | `ColorGlitchBlue` | `#418fa7` |
 | `ColorGlitchRed` | `#dc3744` |

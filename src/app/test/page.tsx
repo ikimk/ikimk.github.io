@@ -2,9 +2,9 @@
 import React from 'react';
 import ThreeJSPlayground from '@/components/ThreeJSPlayground';
 
-export default function ThreeJSPage() {
+export default function TestPage() {
   return (
-    <div className="ThreeJSPage">
+    <div className="TestPage">
       <ThreeJSPlayground />
     </div>
   );

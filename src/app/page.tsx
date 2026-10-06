@@ -1,13 +1,13 @@
 'use client';
 import React from 'react';
 import BlockHero from '@/components/blocks/BlockHero';
-import { ColorBlack } from '@/utils/DesignSystem';
+import { ColorBlackDarkest } from '@/utils/DesignSystem';
 
 export default function HomePage() {
   return (
     <div
       className="HomePage relative isolate min-h-[100vh]"
-      style={{ backgroundColor: ColorBlack }}
+      style={{ backgroundColor: ColorBlackDarkest }}
     >
       <BlockHero />
     </div>

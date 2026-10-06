@@ -3,7 +3,7 @@ import React from 'react';
 import ThreeJSCanvas from '@/components/ThreeJSCanvas';
 import useUtilBreakpoint from '@/utils/useUtilBreakpoint';
 import {
-  ColorBlack,
+  ColorBlackDarkest,
   ColorCream,
   FontSize1,
   FontSize3,
@@ -25,9 +25,13 @@ export default function BlockHero() {
   return (
     <section
       className="BlockHero relative isolate h-[100dvh] min-h-[100vh] w-full overflow-hidden"
-      style={{ backgroundColor: ColorBlack }}
+      style={{ backgroundColor: ColorBlackDarkest }}
     >
-      <ThreeJSCanvas showControls={false} includeSunGlow />
+      <ThreeJSCanvas
+        showControls={false}
+        includeSunGlow
+        includePSGrid
+      />
       <div
         className="block-hero-content pointer-events-none absolute inset-[0px] z-[2] flex items-center justify-center"
         style={{ paddingLeft: contentPadX, paddingRight: contentPadX }}

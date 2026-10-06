@@ -1,6 +1,6 @@
 ---
 description: Use one WebGL canvas and one Three.js environment for all 3D effects
-globs: src/components/threejs/**/*,src/components/ThreeJS*.tsx,src/app/threejs/**/*,Doc/threeJS/**/*
+globs: src/components/threejs/**/*,src/components/ThreeJS*.tsx,src/app/test/**/*,Doc/threeJS/**/*
 alwaysApply: false
 ---
 
@@ -58,5 +58,5 @@ When the user says change **`grain_intensity`** (or “more/less grain”), scop
 ## Exceptions
 
 - **GradientCloud** is allowed its **own canvas** so it can fill a div background (e.g. `CTADiv`). Do not put GradientCloud on the shared `ThreeJSCanvas`.
-- GradientCloud look is **complete** — files kept (`GradientCloud.tsx`, `createGradientCloud.ts`, `CTADiv.tsx`, `GRADIENTCLOUD_DEFAULTS`) but **not mounted** on `/threejs` until needed again.
+- GradientCloud look is **complete** — files kept (`GradientCloud.tsx`, `createGradientCloud.ts`, `CTADiv.tsx`, `GRADIENTCLOUD_DEFAULTS`) but **not mounted** on `/test` until needed again.
 - Only add another canvas if the user explicitly asks for a separate WebGL context. Default for page-edge effects (StarlightRibbon, SunGlow, FilmGrain) remains one shared canvas.

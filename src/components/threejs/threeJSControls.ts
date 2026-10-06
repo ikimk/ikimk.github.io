@@ -34,6 +34,23 @@ export const SUNGLOW_DEFAULTS = {
   sun_opacity: 0.35,
 };
 
+/** PSGrid — PlayStation-button wallpaper (□ △ ○ ✕); glyphs down, noise up + Bend */
+export const PSGRID_DEFAULTS = {
+  scale: 27,
+  glyph_size: 0.1,
+  stroke: 0.038,
+  opacity: 0.13,
+  opacity_to: 0.35,
+  noise_scale: 0.12,
+  noise_amount: 0.9,
+  noise_speed: 1.13,
+  glyph_speed: 0.17,
+  size_min: 0.02,
+  bend: 0.13,
+  bend_to: 0.31,
+  fade_top: 0.31,
+};
+
 /** FilmGrain — StarlightRibbon only (not shared with GradientCloud) */
 export const FILMGRAIN_DEFAULTS = {
   grain_intensity: STARLIGHT_DEFAULTS.grain_intensity,
@@ -41,7 +58,7 @@ export const FILMGRAIN_DEFAULTS = {
 };
 
 /**
- * GradientCloud — ready for later (not mounted on `/threejs` playground).
+ * GradientCloud — ready for later (not mounted on `/test` playground).
  * Own canvas via <GradientCloud /> / <CTADiv />. Own grain (not FILMGRAIN_DEFAULTS).
  */
 export const GRADIENTCLOUD_DEFAULTS = {
@@ -66,6 +83,7 @@ export const gradientCloudLive = {
 export const THREEJS_PANEL_DEFAULTS = {
   ...STARLIGHT_DEFAULTS,
   ...SUNGLOW_DEFAULTS,
+  ...PSGRID_DEFAULTS,
   grain_intensity: STARLIGHT_DEFAULTS.grain_intensity,
   grain_intensity_to: STARLIGHT_DEFAULTS.grain_intensity_to,
 };
