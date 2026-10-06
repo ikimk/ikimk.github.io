@@ -10,6 +10,7 @@ export const ColorGrayBlack = '#1B1B1B';
 
 /** Action */
 export const ColorOrange = '#FF5320';
+export const ColorRed = '#FF0000';
 export const ColorBlue = '#00A1DC';
 export const ColorGreen = '#00B327';
 
@@ -30,6 +31,7 @@ export const colorCssVars = {
   '--color-black': ColorBlack,
   '--color-gray-black': ColorGrayBlack,
   '--color-orange': ColorOrange,
+  '--color-red': ColorRed,
   '--color-blue': ColorBlue,
   '--color-green': ColorGreen,
   '--color-white': ColorWhite,

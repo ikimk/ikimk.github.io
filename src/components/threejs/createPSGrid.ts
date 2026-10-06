@@ -197,9 +197,15 @@ export type PSGridEffect = {
   dispose: () => void;
 };
 
+export type PSGridColors = {
+  bg?: string;
+  glyph?: string;
+};
+
 export function createPSGrid(
   scene: THREE.Scene,
   defaults?: Partial<PSGridParams>,
+  colors?: PSGridColors,
 ): PSGridEffect {
   const scale = defaults?.scale ?? 23;
   const glyph_size = defaults?.glyph_size ?? 0.21;
@@ -212,6 +218,8 @@ export function createPSGrid(
   const size_min = defaults?.size_min ?? 0.12;
   const bend = defaults?.bend ?? 0.35;
   const fade_top = defaults?.fade_top ?? 0.5;
+  const glyphHex = colors?.glyph ?? ThreeColorPSGridGlyph;
+  const bgHex = colors?.bg ?? ThreeColorPSGridBg;
 
   // dense Y segments so the Z sine reads smooth
   const geometry = new THREE.PlaneGeometry(1, 1, 1, 64);
@@ -230,8 +238,8 @@ export function createPSGrid(
       uSizeMin: { value: size_min },
       uBend: { value: bend },
       uFadeTop: { value: fade_top },
-      uBg: { value: hexToRgb(ThreeColorPSGridBg) },
-      uGlyph: { value: hexToRgb(ThreeColorPSGridGlyph) },
+      uBg: { value: hexToRgb(bgHex) },
+      uGlyph: { value: hexToRgb(glyphHex) },
     },
     vertexShader,
     fragmentShader,

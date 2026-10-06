@@ -50,16 +50,29 @@ type ThreeJSCanvasProps = {
   includeSunGlow?: boolean;
   /** Full-screen PSGrid wallpaper behind edge effects */
   includePSGrid?: boolean;
+  /** Override PSGrid glyph color (hex). Default: ThreeColorPSGridGlyph */
+  psGridGlyphColor?: string;
+  /** Override PSGrid opacity at rest / on scroll */
+  psGridOpacity?: number;
+  psGridOpacityTo?: number;
 };
 
 export default function ThreeJSCanvas({
   showControls = true,
   includeSunGlow = true,
   includePSGrid = true,
+  psGridGlyphColor,
+  psGridOpacity,
+  psGridOpacityTo,
 }: ThreeJSCanvasProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  const paramsRef = useRef({ ...THREEJS_PANEL_DEFAULTS });
-  const [params, setParams] = useState({ ...THREEJS_PANEL_DEFAULTS });
+  const panelDefaults: ThreeJSPanelParams = {
+    ...THREEJS_PANEL_DEFAULTS,
+    ...(psGridOpacity != null ? { opacity: psGridOpacity } : {}),
+    ...(psGridOpacityTo != null ? { opacity_to: psGridOpacityTo } : {}),
+  };
+  const paramsRef = useRef({ ...panelDefaults });
+  const [params, setParams] = useState({ ...panelDefaults });
   const [controlsOpen, setControlsOpen] = useState(false);
 
   function setParam(key: keyof ThreeJSPanelParams, value: number) {
@@ -96,10 +109,20 @@ export default function ThreeJSCanvas({
     camera.position.set(0, 0, 6.5);
     camera.lookAt(0, 0, 0);
 
+    const psGridDefaults = {
+      ...PSGRID_DEFAULTS,
+      ...(psGridOpacity != null ? { opacity: psGridOpacity } : {}),
+      ...(psGridOpacityTo != null ? { opacity_to: psGridOpacityTo } : {}),
+    };
+
     // shared-canvas effects only — GradientCloud kept for later (not mounted here)
     // FilmGrain is opt-in GLSL on selected effects (currently StarlightRibbon only)
     const psGrid = includePSGrid
-      ? createPSGrid(scene, PSGRID_DEFAULTS)
+      ? createPSGrid(
+          scene,
+          psGridDefaults,
+          psGridGlyphColor ? { glyph: psGridGlyphColor } : undefined,
+        )
       : null;
     const sunGlow = includeSunGlow
       ? createSunGlow(scene, SUNGLOW_DEFAULTS)
@@ -195,7 +218,13 @@ export default function ThreeJSCanvas({
       starlightRibbon.dispose();
       renderer.dispose();
     };
-  }, [includeSunGlow, includePSGrid]);
+  }, [
+    includeSunGlow,
+    includePSGrid,
+    psGridGlyphColor,
+    psGridOpacity,
+    psGridOpacityTo,
+  ]);
 
   return (
     <>

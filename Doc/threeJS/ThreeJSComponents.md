@@ -31,7 +31,7 @@ Full-screen wallpaper: PlayStation-style □ △ ○ ✕ outlines on a brick-sta
 | Factory | `createPSGrid` |
 | File | `src/components/threejs/createPSGrid.ts` |
 | Params | `PSGRID_DEFAULTS` in `threeJSControls.ts` |
-| Colors | `ThreeColorPSGridBg` / `ThreeColorPSGridGlyph` in `threeJSColors.ts` |
+| Colors | `ThreeColorPSGridBg` / `ThreeColorPSGridGlyph` (home) / `ThreeColorPSGridGlyphError` (404) in `threeJSColors.ts` |
 | FilmGrain | **No** |
 
 **Controls:** `scale`, `glyph_size`, `stroke`, `opacity`, `noise_scale`, `noise_amount`, `noise_speed`, `glyph_speed`, `size_min`, `fade_top`, `bend`, `bend_to`  

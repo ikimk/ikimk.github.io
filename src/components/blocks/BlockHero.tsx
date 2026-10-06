@@ -27,11 +27,7 @@ export default function BlockHero() {
       className="BlockHero relative isolate h-[100dvh] min-h-[100vh] w-full overflow-hidden"
       style={{ backgroundColor: ColorBlackDarkest }}
     >
-      <ThreeJSCanvas
-        showControls={false}
-        includeSunGlow
-        includePSGrid
-      />
+      <ThreeJSCanvas showControls={false} includeSunGlow includePSGrid />
       <div
         className="block-hero-content pointer-events-none absolute inset-[0px] z-[2] flex items-center justify-center"
         style={{ paddingLeft: contentPadX, paddingRight: contentPadX }}
