@@ -6,7 +6,8 @@ html {
 
 body,
 .App {
-  overflow-x: hidden;
+  /* clip avoids the overflow-x:hidden → overflow-y:auto side effect that can trap scroll */
+  overflow-x: clip;
   overscroll-behavior: none;
 }
 
@@ -14,6 +15,12 @@ body {
   /* tokens from src/utils/DesignSystem/color.ts via --color-* on <html> */
   background: var(--color-black-darkest, #010703);
   color: var(--color-cream, #e8e2db);
+}
+
+/* On Text Select — DesignSystem color.ts → colorCssVars on <html> */
+::selection {
+  color: var(--color-amber, #ff9500);
+  background: var(--color-cream, #E8E2DB);
 }
 
 .block-container {
@@ -35,27 +42,5 @@ body {
       display: flex;
       flex-direction: column;
     }
-  }
-}
-
-.action-btn {
-  background: black;
-  border: 1px solid transparent;
-  padding: 0 24px;
-  min-height: 43px;
-  width: fit-content;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  border-radius: 50px;
-  transition: all 0.3s 0s ease-out;
-  cursor: pointer;
-  user-select: none;
-
-  p {
-    color: #FFF;
-    text-align: center;
-    font-size: 16px;
-    transition: all 0.3s 0s ease-out;
   }
 }

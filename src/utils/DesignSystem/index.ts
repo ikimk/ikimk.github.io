@@ -6,3 +6,4 @@
 export * from './goldenRatio';
 export * from './color';
 export * from './typo';
+export * from './layout';

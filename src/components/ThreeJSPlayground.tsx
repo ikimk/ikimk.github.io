@@ -1,6 +1,7 @@
 'use client';
 import React from 'react';
 import ThreeJSCanvas from '@/components/ThreeJSCanvas';
+import Projects from '@/components/projects/Projects';
 import { ColorBlackDarkest } from '@/utils/DesignSystem';
 
 export default function ThreeJSPlayground() {
@@ -10,6 +11,7 @@ export default function ThreeJSPlayground() {
       style={{ backgroundColor: ColorBlackDarkest }}
     >
       <ThreeJSCanvas />
+      <Projects layout="overlay" />
     </div>
   );
 }

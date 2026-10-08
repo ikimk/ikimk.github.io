@@ -1,8 +1,5 @@
 import * as THREE from 'three';
-import {
-  ThreeColorPSGridBg,
-  ThreeColorPSGridGlyph,
-} from '@/components/threejs/threeJSColors';
+import { ThreeColorPSGridGlyph } from '@/components/threejs/threeJSColors';
 
 /** Must match ThreeJSCanvas camera.position.z — used to overscan past perspective pinch */
 const CAMERA_Z = 6.5;
@@ -33,7 +30,6 @@ const fragmentShader = `
   uniform float uGlyphSpeed;
   uniform float uSizeMin;
   uniform float uFadeTop;
-  uniform vec3 uBg;
   uniform vec3 uGlyph;
   varying vec2 vUv;
 
@@ -153,8 +149,9 @@ const fragmentShader = `
     float fromTop = 1.0 - (gl_FragCoord.y / max(uResolution.y, 1.0));
     float topFade = smoothstep(0.0, max(uFadeTop, 0.001), fromTop);
 
-    vec3 col = mix(uBg, uGlyph, glyph * uOpacity * presence * topFade);
-    gl_FragColor = vec4(col, 1.0);
+    // transparent — page bg shows through; only glyphs draw
+    float alpha = glyph * uOpacity * presence * topFade;
+    gl_FragColor = vec4(uGlyph, alpha);
   }
 `;
 
@@ -198,7 +195,6 @@ export type PSGridEffect = {
 };
 
 export type PSGridColors = {
-  bg?: string;
   glyph?: string;
 };
 
@@ -219,7 +215,6 @@ export function createPSGrid(
   const bend = defaults?.bend ?? 0.35;
   const fade_top = defaults?.fade_top ?? 0.5;
   const glyphHex = colors?.glyph ?? ThreeColorPSGridGlyph;
-  const bgHex = colors?.bg ?? ThreeColorPSGridBg;
 
   // dense Y segments so the Z sine reads smooth
   const geometry = new THREE.PlaneGeometry(1, 1, 1, 64);
@@ -238,13 +233,12 @@ export function createPSGrid(
       uSizeMin: { value: size_min },
       uBend: { value: bend },
       uFadeTop: { value: fade_top },
-      uBg: { value: hexToRgb(bgHex) },
       uGlyph: { value: hexToRgb(glyphHex) },
     },
     vertexShader,
     fragmentShader,
     depthWrite: false,
-    transparent: false,
+    transparent: true,
   });
 
   const mesh = new THREE.Mesh(geometry, material);

@@ -8,20 +8,20 @@ alwaysApply: false
 
 **ALWAYS** use `src/utils/DesignSystem/typo.ts` for type: **font-size**, **letter-spacing (tracking)**, **font-weight**, and shared **line-height** tokens.
 
-Font sizes in Typo are golden Scales under the hood (`FontSize1` → `Scale5`, etc.). Spacing stays on `DesignSystem/goldenRatio.ts`.
+Font sizes match golden Scale indices (`FontSize10` === `Scale10`). Spacing stays on `DesignSystem/goldenRatio.ts`.
 
 ## Hard rules
 
 1. **ALWAYS** import `TrackingN`, `FontSizeN`, `FontWeight*` from `@/utils/DesignSystem` — never invent `tracking-[-0.13em]` / random em in classes.
 2. When the user says `-13%` / `-0.13em` / `-9%` / `-0.09em` → match the nearest existing Tracking step (or add a new `TrackingN` in `typo.ts` if it’s a new project token).
-3. New type sizes → add `FontSizeN` in `typo.ts` mapped to a golden `Scale*`. Do not hardcode px for type.
+3. New type sizes → add `FontSizeN` in `typo.ts` where **N matches the golden `ScaleN`**. Do not hardcode px for type.
 4. When the user gives a **new font or type value** → **update `DesignSystem/typo.ts` first** (and `typo.scss` if the family changes), then wire UI to the token.
 5. If chat does **not** specify tracking, weight, or line-height → use `TrackingAuto`, `FontWeightAuto`, `LineHeightAuto`.
 6. Non-token tracking/size/weight **only** when the user explicitly overrides in chat.
 
 ```ts
 import {
-  FontSize2,
+  FontSize10,
   Tracking1,
   TrackingAuto,
   FontWeightBold,
@@ -30,10 +30,10 @@ import {
 } from '@/utils/DesignSystem';
 
 // ✅ specified
-style={{ fontSize: FontSize2, letterSpacing: Tracking1, fontWeight: FontWeightBold }}
+style={{ fontSize: FontSize10, letterSpacing: Tracking1, fontWeight: FontWeightBold }}
 
 // ✅ not specified → Auto
-style={{ fontSize: FontSize2, letterSpacing: TrackingAuto, fontWeight: FontWeightAuto, lineHeight: LineHeightAuto }}
+style={{ fontSize: FontSize10, letterSpacing: TrackingAuto, fontWeight: FontWeightAuto, lineHeight: LineHeightAuto }}
 
 // ❌
 className="text-[18.41px] tracking-[-0.13em] font-[700]"
@@ -46,10 +46,16 @@ className="text-[18.41px] tracking-[-0.13em] font-[700]"
 | `TrackingAuto` | `normal` | default when tracking not specified |
 | `Tracking1` | `-0.13em` | header / nav |
 | `Tracking2` | `-0.09em` | display / hero |
-| `FontSize1` | Scale5 `204.26` | display / hero (desktop) |
-| `FontSize2` | Scale10 `18.41` | header / UI |
-| `FontSize3` | Scale6 `126.23` | display / hero (tablet) |
-| `FontSize4` | Scale8 `48.23` | display / hero (mobile) |
+| `FontSize1` | Scale1 `1400` | |
+| `FontSize2` | Scale2 `865.28` | |
+| `FontSize3` | Scale3 `534.54` | |
+| `FontSize4` | Scale4 `330.44` | |
+| `FontSize5` | Scale5 `204.26` | display / hero (desktop) |
+| `FontSize6` | Scale6 `126.23` | display / hero (tablet) |
+| `FontSize7` | Scale7 `78` | |
+| `FontSize8` | Scale8 `48.23` | display / hero (mobile) |
+| `FontSize9` | Scale9 `29.78` | |
+| `FontSize10` | Scale10 `18.41` | header / UI |
 | `FontWeightAuto` | `400` | default when weight not specified |
 | `FontWeightRegular` | `400` | body / links |
 | `FontWeightSemiBold` | `600` | logo “Code” |

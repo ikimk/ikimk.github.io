@@ -48,6 +48,8 @@ type ThreeJSCanvasProps = {
   showControls?: boolean;
   /** Top edge sun (playground). Homepage Figma uses bottom ribbon only. */
   includeSunGlow?: boolean;
+  /** Bottom StarlightRibbon — off when a separate edge overlay canvas owns it */
+  includeStarlight?: boolean;
   /** Full-screen PSGrid wallpaper behind edge effects */
   includePSGrid?: boolean;
   /** Override PSGrid glyph color (hex). Default: ThreeColorPSGridGlyph */
@@ -60,6 +62,7 @@ type ThreeJSCanvasProps = {
 export default function ThreeJSCanvas({
   showControls = true,
   includeSunGlow = true,
+  includeStarlight = true,
   includePSGrid = true,
   psGridGlyphColor,
   psGridOpacity,
@@ -127,7 +130,9 @@ export default function ThreeJSCanvas({
     const sunGlow = includeSunGlow
       ? createSunGlow(scene, SUNGLOW_DEFAULTS)
       : null;
-    const starlightRibbon = createStarlightRibbon(scene, STARLIGHT_DEFAULTS);
+    const starlightRibbon = includeStarlight
+      ? createStarlightRibbon(scene, STARLIGHT_DEFAULTS)
+      : null;
 
     const clock = new THREE.Clock();
 
@@ -137,7 +142,7 @@ export default function ThreeJSCanvas({
       const viewW = viewH * camera.aspect;
       psGrid?.resize(viewW, viewH, WindowWidth, WindowHeight);
       sunGlow?.resize(viewW, viewH);
-      starlightRibbon.resize(viewW, viewH, WindowHeight);
+      starlightRibbon?.resize(viewW, viewH, WindowHeight);
     }
     FitToScreen();
 
@@ -181,7 +186,7 @@ export default function ThreeJSCanvas({
       }
 
       // Starlight FilmGrain only — animates grain_intensity → grain_intensity_to
-      starlightRibbon.update(time, scrollCurrent, {
+      starlightRibbon?.update(time, scrollCurrent, {
         wavelength: p.wavelength,
         amplitude: p.amplitude,
         scroll_intensity: p.scroll_intensity,
@@ -190,6 +195,8 @@ export default function ThreeJSCanvas({
         ribbon_sun_on_scroll: p.ribbon_sun_on_scroll,
         ribbon_sun_opacity: p.ribbon_sun_opacity,
         wave_offset_y: p.wave_offset_y,
+        blend_height: p.blend_height,
+        blend_strength: p.blend_strength,
         grain_intensity: p.grain_intensity,
         grain_intensity_to: p.grain_intensity_to,
       });
@@ -215,11 +222,12 @@ export default function ThreeJSCanvas({
       window.removeEventListener('resize', onResize);
       psGrid?.dispose();
       sunGlow?.dispose();
-      starlightRibbon.dispose();
+      starlightRibbon?.dispose();
       renderer.dispose();
     };
   }, [
     includeSunGlow,
+    includeStarlight,
     includePSGrid,
     psGridGlyphColor,
     psGridOpacity,
@@ -559,6 +567,34 @@ export default function ThreeJSCanvas({
                 step="0.01"
                 value={params.ribbon_sun_opacity}
                 onChange={(e) => setParam('ribbon_sun_opacity', Number(e.target.value))}
+              />
+            </label>
+            <label className="three-js-canvas-control flex flex-col gap-[4px]">
+              <span className="three-js-canvas-control-label text-[12px] leading-[16px] text-[#ffffffcc]">
+                blend_height {params.blend_height.toFixed(2)}
+              </span>
+              <input
+                className="three-js-canvas-control-input w-full"
+                type="range"
+                min="0.05"
+                max="1"
+                step="0.01"
+                value={params.blend_height}
+                onChange={(e) => setParam('blend_height', Number(e.target.value))}
+              />
+            </label>
+            <label className="three-js-canvas-control flex flex-col gap-[4px]">
+              <span className="three-js-canvas-control-label text-[12px] leading-[16px] text-[#ffffffcc]">
+                blend_strength {params.blend_strength.toFixed(2)}
+              </span>
+              <input
+                className="three-js-canvas-control-input w-full"
+                type="range"
+                min="0"
+                max="1"
+                step="0.01"
+                value={params.blend_strength}
+                onChange={(e) => setParam('blend_strength', Number(e.target.value))}
               />
             </label>
             </ControlSection>

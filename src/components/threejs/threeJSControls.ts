@@ -22,6 +22,12 @@ export const STARLIGHT_DEFAULTS = {
   ribbon_sun_glow: 0.6,
   ribbon_sun_on_scroll: 0.35,
   ribbon_sun_opacity: 0.6,
+  /**
+   * Dark→light bg blend above the ribbon (page bg color).
+   * height = how far up the viewport (0–1); strength = veil opacity.
+   */
+  blend_height: 0.1,
+  blend_strength: 0.5,
   /** Starlight FilmGrain — animates between these (Starlight only) */
   grain_intensity: 0.13,
   grain_intensity_to: 0.31,
@@ -39,8 +45,8 @@ export const PSGRID_DEFAULTS = {
   scale: 27,
   glyph_size: 0.1,
   stroke: 0.038,
-  opacity: 0.13,
-  opacity_to: 0.35,
+  opacity: 0.18,
+  opacity_to: 0.5,
   noise_scale: 0.12,
   noise_amount: 0.9,
   noise_speed: 1.13,

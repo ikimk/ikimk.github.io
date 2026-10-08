@@ -9,10 +9,11 @@ import {
   ColorGlitchBlue,
   ColorGlitchRed,
   ColorWhite,
-  FontSize2,
+  FontSize10,
   FontWeightBold,
   FontWeightRegular,
   FontWeightSemiBold,
+  PageMaxWidth,
   Scale9,
   Scale10,
   Scale11,
@@ -63,8 +64,9 @@ export const Header = () => {
   return (
     <header className="BlockHeader pointer-events-none absolute top-[0px] left-[0px] z-[2] w-full">
       <nav
-        className="block-header-nav pointer-events-auto flex w-full items-center justify-between"
+        className="block-header-nav pointer-events-auto mx-auto flex w-full items-center justify-between"
         style={{
+          maxWidth: PageMaxWidth,
           paddingLeft: padX,
           paddingRight: padX,
           paddingTop: padY,
@@ -76,8 +78,8 @@ export const Header = () => {
           className="block-header-logo relative inline-flex shrink-0"
           style={{
             color: ColorWhite,
-            fontSize: FontSize2,
-            lineHeight: `${FontSize2}px`,
+            fontSize: FontSize10,
+            lineHeight: `${FontSize10}px`,
             letterSpacing: Tracking1,
             ['--color-glitch-blue' as string]: ColorGlitchBlue,
             ['--color-glitch-red' as string]: ColorGlitchRed,
@@ -104,8 +106,8 @@ export const Header = () => {
             className="block-header-link"
             style={{
               color: ColorCream,
-              fontSize: FontSize2,
-              lineHeight: `${FontSize2}px`,
+              fontSize: FontSize10,
+              lineHeight: `${FontSize10}px`,
               fontWeight: FontWeightRegular,
               letterSpacing: Tracking1,
             }}
@@ -117,8 +119,8 @@ export const Header = () => {
             className="block-header-link"
             style={{
               color: ColorCream,
-              fontSize: FontSize2,
-              lineHeight: `${FontSize2}px`,
+              fontSize: FontSize10,
+              lineHeight: `${FontSize10}px`,
               fontWeight: FontWeightRegular,
               letterSpacing: Tracking1,
             }}

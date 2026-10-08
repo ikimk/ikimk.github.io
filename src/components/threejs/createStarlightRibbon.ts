@@ -1,5 +1,6 @@
 import * as THREE from 'three';
 import { filmGrainGlsl, filmGrainUniform } from '@/components/threejs/createFilmGrain';
+import { ThreeColorStarlightBlend } from '@/components/threejs/threeJSColors';
 
 const vertexShader = `
   varying vec2 vUv;
@@ -163,6 +164,22 @@ const bottomSunFragmentShader = `
   }
 `;
 
+/** Page-bg veil: clear above → dark near ribbon (content fades into the glow) */
+const blendFragmentShader = `
+  uniform vec3 uBgColor;
+  uniform float uBlendStrength;
+  varying vec2 vUv;
+
+  void main() {
+    // vUv.y 0 = mesh bottom (near ribbon), 1 = mesh top
+    float y = clamp(vUv.y, 0.0, 1.0);
+    // clear at top of band, dark toward ribbon at bottom
+    float alpha = (1.0 - smoothstep(0.0, 0.92, y)) * uBlendStrength;
+    if (alpha < 0.002) discard;
+    gl_FragColor = vec4(uBgColor, alpha);
+  }
+`;
+
 export type StarlightRibbonParams = {
   wavelength: number;
   amplitude: number;
@@ -172,6 +189,10 @@ export type StarlightRibbonParams = {
   ribbon_sun_on_scroll: number;
   ribbon_sun_opacity: number;
   wave_offset_y: number;
+  /** How far up the viewport the dark→light blend reaches (0–1) */
+  blend_height: number;
+  /** Opacity of the page-bg veil (0–1) */
+  blend_strength: number;
   grain_intensity: number;
   grain_intensity_to: number;
 };
@@ -199,6 +220,23 @@ export function createStarlightRibbon(
   defaults: StarlightRibbonParams,
 ): StarlightRibbonEffect {
   const geometry = new THREE.PlaneGeometry(1, 1, 1, 1);
+  const blendColor = new THREE.Color(ThreeColorStarlightBlend);
+
+  // Behind glow — page-bg dark→light veil so ribbon blends into the scene
+  const blendMaterial = new THREE.ShaderMaterial({
+    uniforms: {
+      uBgColor: { value: blendColor },
+      uBlendStrength: { value: defaults.blend_strength },
+    },
+    vertexShader,
+    fragmentShader: blendFragmentShader,
+    transparent: true,
+    depthWrite: false,
+    blending: THREE.NormalBlending,
+  });
+  const BlendPlane = new THREE.Mesh(geometry, blendMaterial);
+  BlendPlane.renderOrder = 0;
+  scene.add(BlendPlane);
 
   const sunMaterial = new THREE.ShaderMaterial({
     uniforms: {
@@ -237,10 +275,12 @@ export function createStarlightRibbon(
   let viewH = 1;
   let screenH = 1;
   let wave_offset_y = defaults.wave_offset_y;
+  let blend_height = defaults.blend_height;
 
   function ApplyLayout() {
     const waveH = viewH * 0.18;
     const sunH = viewH * 0.5;
+    const blendH = viewH * THREE.MathUtils.clamp(blend_height, 0.05, 1);
     const offsetY = (wave_offset_y / Math.max(screenH, 1)) * viewH;
 
     WavePlane.scale.set(viewW, waveH, 1);
@@ -250,6 +290,9 @@ export function createStarlightRibbon(
     SunPlane.scale.set(viewW, sunH, 1);
     SunPlane.position.set(0, -viewH * 0.5 + sunH * 0.5 + offsetY, -0.01);
     sunMaterial.uniforms.uRibbonScale.value = waveH / Math.max(sunH, 0.0001);
+
+    BlendPlane.scale.set(viewW, blendH, 1);
+    BlendPlane.position.set(0, -viewH * 0.5 + blendH * 0.5 + offsetY, -0.02);
   }
 
   function SyncUniforms(mat: THREE.ShaderMaterial, time: number, scroll: number, params: StarlightRibbonParams) {
@@ -268,6 +311,7 @@ export function createStarlightRibbon(
       sunMaterial.uniforms.uSunGlow.value = params.ribbon_sun_glow;
       sunMaterial.uniforms.uSunScroll.value = params.ribbon_sun_on_scroll;
       sunMaterial.uniforms.uSunOpacity.value = params.ribbon_sun_opacity;
+      blendMaterial.uniforms.uBlendStrength.value = params.blend_strength;
       // pulse Starlight grain between grain_intensity → grain_intensity_to
       const g0 = params.grain_intensity;
       const g1 = params.grain_intensity_to;
@@ -275,8 +319,12 @@ export function createStarlightRibbon(
         g0 + (g1 - g0) * (0.5 + 0.5 * Math.sin(time * 1.1));
       ribbonMaterial.uniforms.uGrainIntensity.value = grain;
       sunMaterial.uniforms.uGrainIntensity.value = grain;
-      if (params.wave_offset_y !== wave_offset_y) {
+      const layoutDirty =
+        params.wave_offset_y !== wave_offset_y ||
+        params.blend_height !== blend_height;
+      if (layoutDirty) {
         wave_offset_y = params.wave_offset_y;
+        blend_height = params.blend_height;
         ApplyLayout();
       }
     },
@@ -289,9 +337,11 @@ export function createStarlightRibbon(
     dispose() {
       scene.remove(WavePlane);
       scene.remove(SunPlane);
+      scene.remove(BlendPlane);
       geometry.dispose();
       ribbonMaterial.dispose();
       sunMaterial.dispose();
+      blendMaterial.dispose();
     },
   };
 }

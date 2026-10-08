@@ -10,6 +10,7 @@ export const ColorGrayBlack = '#1B1B1B';
 
 /** Action */
 export const ColorOrange = '#FF5320';
+export const ColorAmber = '#FF9500';
 export const ColorRed = '#FF0000';
 export const ColorBlue = '#00A1DC';
 export const ColorGreen = '#00B327';
@@ -17,7 +18,7 @@ export const ColorGreen = '#00B327';
 /** Whites — light → dark */
 export const ColorWhite = '#F0F0EF';
 export const ColorCream = '#E8E2DB';
-export const ColorAsh = '#CCC7C6';
+export const ColorStone = '#CCC7C6';
 export const ColorPearl = '#C7C7CF';
 export const ColorGray = '#BBBBBB';
 
@@ -31,12 +32,13 @@ export const colorCssVars = {
   '--color-black': ColorBlack,
   '--color-gray-black': ColorGrayBlack,
   '--color-orange': ColorOrange,
+  '--color-amber': ColorAmber,
   '--color-red': ColorRed,
   '--color-blue': ColorBlue,
   '--color-green': ColorGreen,
   '--color-white': ColorWhite,
   '--color-cream': ColorCream,
-  '--color-ash': ColorAsh,
+  '--color-stone': ColorStone,
   '--color-pearl': ColorPearl,
   '--color-gray': ColorGray,
   '--color-glitch-blue': ColorGlitchBlue,

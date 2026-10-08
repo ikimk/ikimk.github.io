@@ -3,7 +3,12 @@
  *
  * Do NOT mount a fullscreen grain plane.
  * Wire `filmGrainGlsl` + `filmGrainUniform` only into effects that should show grain
- * (currently: StarlightRibbon, GradientCloud). See Doc/threeJS/ThreeJSComponents.md.
+ * (currently: StarlightRibbon, GradientCloud).
+ *
+ * HARD RULE — grain on the drawn effect / element only, never on blank / bg:
+ * pass `coverage` = that effect’s alpha / drawn strength (0 on empty pixels).
+ * `applyFilmGrain(color, coverage)` already multiplies grain by coverage.
+ * See Doc/threeJS/ThreeJSComponents.md + `.cursor/rules/threejs-single-canvas.mdc`.
  */
 
 /** FilmGrain-only params — independent of other effects */
@@ -21,7 +26,8 @@ export const filmGrainGlsl = `
     return fract((p3.x + p3.y) * p3.z);
   }
 
-  // coverage 0..1 — grain only where the effect draws
+  // coverage 0..1 — MUST be effect/element mask (glyphs, ribbon alpha…).
+  // Never pass 1.0 over a full-screen bg; blank pixels → coverage 0 → no grain.
   vec3 applyFilmGrain(vec3 color, float coverage) {
     float n = filmGrainHash(gl_FragCoord.xy);
     float g = pow(n, 1.35) * uGrainIntensity * clamp(coverage, 0.0, 1.0);
