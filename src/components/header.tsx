@@ -62,7 +62,7 @@ export const Header = () => {
   if (pathname === '/test') return null;
 
   return (
-    <header className="BlockHeader pointer-events-none absolute top-[0px] left-[0px] z-[2] w-full">
+    <header className="BlockHeader pointer-events-none fixed top-[0px] left-[0px] z-[2] w-full">
       <nav
         className="block-header-nav pointer-events-auto mx-auto flex w-full items-center justify-between"
         style={{

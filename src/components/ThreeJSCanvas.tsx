@@ -17,22 +17,26 @@ import {
 function ControlSection({
   title,
   children,
+  defaultOpen = false,
 }: {
   title: string;
   children: React.ReactNode;
+  defaultOpen?: boolean;
 }) {
-  const [open, setOpen] = useState(false);
+  const [open, setOpen] = useState(defaultOpen);
 
   return (
     <div className="three-js-canvas-controls-section flex flex-col gap-[8px]">
       <button
         type="button"
-        className="three-js-canvas-controls-section-toggle flex w-full items-center justify-between text-left text-[11px] font-[600] uppercase tracking-[0.06em] text-[#ffffff66]"
+        className="three-js-canvas-controls-section-toggle flex w-full items-center justify-between text-left text-[12px] font-[600] leading-[16px] text-[#E8E2DB]"
         onClick={() => setOpen((value) => !value)}
         aria-expanded={open}
       >
-        <span>{title}</span>
-        <span>{open ? '−' : '+'}</span>
+        <span className="three-js-canvas-controls-section-title">{title}</span>
+        <span className="three-js-canvas-controls-section-chevron text-[#E8E2DBcc]">
+          {open ? '▴' : '▾'}
+        </span>
       </button>
       {open ? (
         <div className="three-js-canvas-controls-section-body flex flex-col gap-[10px]">
@@ -158,24 +162,34 @@ export default function ThreeJSCanvas({
       scrollCurrent =
         scrollCurrent * (1 - LerpEase) + scrollTarget * LerpEase;
 
+      // Page scroll → depth parallax — 1:1 with scrollY (no lerp; lag felt like easing)
+      const pageScrollVH =
+        WindowHeight > 0 ? window.scrollY / WindowHeight : 0;
+
       const time = clock.getElapsedTime();
       const p = paramsRef.current;
       if (psGrid) {
-        psGrid.update(time, scrollCurrent, {
-          scale: p.scale,
-          glyph_size: p.glyph_size,
-          stroke: p.stroke,
-          opacity: p.opacity,
-          opacity_to: p.opacity_to,
-          noise_scale: p.noise_scale,
-          noise_amount: p.noise_amount,
-          noise_speed: p.noise_speed,
-          glyph_speed: p.glyph_speed,
-          size_min: p.size_min,
-          bend: p.bend,
-          bend_to: p.bend_to,
-          fade_top: p.fade_top,
-        });
+        psGrid.update(
+          time,
+          scrollCurrent,
+          {
+            scale: p.scale,
+            glyph_size: p.glyph_size,
+            stroke: p.stroke,
+            opacity: p.opacity,
+            opacity_to: p.opacity_to,
+            noise_scale: p.noise_scale,
+            noise_amount: p.noise_amount,
+            noise_speed: p.noise_speed,
+            glyph_speed: p.glyph_speed,
+            size_min: p.size_min,
+            bend: p.bend,
+            bend_to: p.bend_to,
+            fade_top: p.fade_top,
+            parallax: p.parallax,
+          },
+          pageScrollVH,
+        );
       }
       if (sunGlow) {
         sunGlow.update(time, scrollCurrent, {
@@ -244,15 +258,15 @@ export default function ThreeJSCanvas({
       <div className="three-js-canvas-controls pointer-events-auto absolute top-[16px] right-[16px] z-[3] flex flex-col items-end gap-[8px]">
         <button
           type="button"
-          className="three-js-canvas-controls-toggle rounded-[10px] bg-[#111111cc] px-[12px] py-[8px] text-[12px] font-[600] leading-[16px] text-[#ffffff]"
+          className="three-js-canvas-controls-toggle rounded-[10px] bg-[#1B1B1Bcc] px-[12px] py-[8px] text-[12px] font-[600] leading-[16px] text-[#F0F0EF]"
           onClick={() => setControlsOpen((open) => !open)}
           aria-expanded={controlsOpen}
         >
-          {controlsOpen ? 'Hide controls' : 'Controls'}
+          {controlsOpen ? 'Helper ▴' : 'Helper ▾'}
         </button>
         {controlsOpen ? (
-          <div className="three-js-canvas-controls-panel flex max-h-[calc(100vh-72px)] w-[240px] flex-col gap-[10px] overflow-y-auto rounded-[12px] bg-[#111111cc] p-[14px] text-[#ffffff]">
-            <ControlSection title="PSGrid">
+          <div className="three-js-canvas-controls-panel flex max-h-[calc(100vh-72px)] w-[240px] flex-col gap-[10px] overflow-y-auto rounded-[12px] bg-[#1B1B1Bcc] p-[14px] text-[#F0F0EF]">
+            <ControlSection title="PSGrid" defaultOpen>
               <label className="three-js-canvas-control flex flex-col gap-[4px]">
                 <span className="three-js-canvas-control-label text-[12px] leading-[16px] text-[#ffffffcc]">
                   scale {params.scale.toFixed(0)}
@@ -420,6 +434,22 @@ export default function ThreeJSCanvas({
                   value={params.fade_top}
                   onChange={(e) =>
                     setParam('fade_top', Number(e.target.value))
+                  }
+                />
+              </label>
+              <label className="three-js-canvas-control flex flex-col gap-[4px]">
+                <span className="three-js-canvas-control-label text-[12px] leading-[16px] text-[#ffffffcc]">
+                  parallax {params.parallax.toFixed(2)}
+                </span>
+                <input
+                  className="three-js-canvas-control-input w-full"
+                  type="range"
+                  min="0"
+                  max="0.45"
+                  step="0.01"
+                  value={params.parallax}
+                  onChange={(e) =>
+                    setParam('parallax', Number(e.target.value))
                   }
                 />
               </label>

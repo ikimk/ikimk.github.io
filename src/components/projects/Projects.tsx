@@ -2,7 +2,15 @@
 import React from 'react';
 import Project, { type ProjectData } from '@/components/projects/Project';
 import useUtilBreakpoint from '@/utils/useUtilBreakpoint';
-import { Scale5, Scale6, Scale9, Scale10 } from '@/utils/DesignSystem';
+import {
+  Scale5,
+  Scale6,
+  Scale4,
+  Scale7,
+  Scale8,
+  Scale9,
+  Scale10,
+} from '@/utils/DesignSystem';
 
 import polka1 from '@/assets/projects/polkastarter/marketplace.polkastarter.com_1.png';
 import polka2 from '@/assets/projects/polkastarter/marketplace.polkastarter.com_2.png';
@@ -88,10 +96,7 @@ export default function Projects({ layout = 'section' }: ProjectsProps) {
       <div
         className="projects-list box-border flex w-full max-w-full flex-col"
         style={{
-          paddingLeft: listPadX,
-          paddingRight: listPadX,
-          // Homepage: tight top so projects sit under Hello World like Figma
-          paddingTop: isOverlay ? listPadY : Scale10,
+          // Horizontal pad lives on Project header + rail (full-bleed Apple scroll)
           paddingBottom: listPadY,
           gap: Scale6,
         }}
@@ -99,9 +104,9 @@ export default function Projects({ layout = 'section' }: ProjectsProps) {
         {PROJECTS.map((project) => (
           <section
             key={project.title}
-            className="projects-item box-border w-full max-w-full"
+            className="projects-item box-border w-full max-w-full overflow-x-clip"
           >
-            <Project project={project} />
+            <Project project={project} padX={listPadX} />
           </section>
         ))}
       </div>

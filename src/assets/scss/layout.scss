@@ -44,3 +44,17 @@ body {
     }
   }
 }
+
+/* GTA6ColorGlow_Border — register once (do not redeclare in component styles) */
+@property --gta6-color-glow-border-angle {
+  syntax: '<angle>';
+  inherits: true;
+  initial-value: 0deg;
+}
+
+@keyframes gta6-color-glow-border-spin {
+  to {
+    --gta6-color-glow-border-angle: 360deg;
+  }
+}
+

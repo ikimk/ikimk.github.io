@@ -188,10 +188,20 @@ export default function SiriWaveCanvas() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const paramsRef = useRef({ ...DEFAULTS });
   const [params, setParams] = useState({ ...DEFAULTS });
+  const [helperOpen, setHelperOpen] = useState(true);
 
   function setParam(key: keyof typeof DEFAULTS, value: number) {
     paramsRef.current[key] = value;
     setParams((prev) => ({ ...prev, [key]: value }));
+  }
+
+  function resetSection(keys: (keyof typeof DEFAULTS)[]) {
+    const next = { ...paramsRef.current };
+    for (const key of keys) {
+      next[key] = DEFAULTS[key];
+      paramsRef.current[key] = DEFAULTS[key];
+    }
+    setParams({ ...next });
   }
 
   useEffect(() => {
@@ -331,105 +341,157 @@ export default function SiriWaveCanvas() {
         ref={canvasRef}
         className="SiriWaveCanvas absolute inset-[0px] z-[1] h-full w-full"
       />
-      <div className="siri-wave-canvas-controls pointer-events-auto absolute top-[16px] right-[16px] z-[3] flex w-[240px] flex-col gap-[10px] rounded-[12px] bg-[#111111cc] p-[14px] text-[#ffffff]">
-        <label className="siri-wave-canvas-control flex flex-col gap-[4px]">
-          <span className="siri-wave-canvas-control-label text-[12px] leading-[16px] text-[#ffffffcc]">
-            Edge height {params.edgeHeight.toFixed(2)}
-          </span>
-          <input
-            className="siri-wave-canvas-control-input w-full"
-            type="range"
-            min="0"
-            max="0.8"
-            step="0.01"
-            value={params.edgeHeight}
-            onChange={(e) => setParam('edgeHeight', Number(e.target.value))}
-          />
-        </label>
-        <label className="siri-wave-canvas-control flex flex-col gap-[4px]">
-          <span className="siri-wave-canvas-control-label text-[12px] leading-[16px] text-[#ffffffcc]">
-            Wavelength {params.wavelength.toFixed(2)}
-          </span>
-          <input
-            className="siri-wave-canvas-control-input w-full"
-            type="range"
-            min="0.3"
-            max="4"
-            step="0.05"
-            value={params.wavelength}
-            onChange={(e) => setParam('wavelength', Number(e.target.value))}
-          />
-        </label>
-        <label className="siri-wave-canvas-control flex flex-col gap-[4px]">
-          <span className="siri-wave-canvas-control-label text-[12px] leading-[16px] text-[#ffffffcc]">
-            Amplitude {params.amplitude.toFixed(3)}
-          </span>
-          <input
-            className="siri-wave-canvas-control-input w-full"
-            type="range"
-            min="0"
-            max="0.2"
-            step="0.002"
-            value={params.amplitude}
-            onChange={(e) => setParam('amplitude', Number(e.target.value))}
-          />
-        </label>
-        <label className="siri-wave-canvas-control flex flex-col gap-[4px]">
-          <span className="siri-wave-canvas-control-label text-[12px] leading-[16px] text-[#ffffffcc]">
-            Scroll intensity {params.scrollIntensity.toFixed(2)}
-          </span>
-          <input
-            className="siri-wave-canvas-control-input w-full"
-            type="range"
-            min="0"
-            max="3"
-            step="0.05"
-            value={params.scrollIntensity}
-            onChange={(e) => setParam('scrollIntensity', Number(e.target.value))}
-          />
-        </label>
-        <label className="siri-wave-canvas-control flex flex-col gap-[4px]">
-          <span className="siri-wave-canvas-control-label text-[12px] leading-[16px] text-[#ffffffcc]">
-            Curve width {params.curveWidth.toFixed(2)}
-          </span>
-          <input
-            className="siri-wave-canvas-control-input w-full"
-            type="range"
-            min="0"
-            max="1"
-            step="0.01"
-            value={params.curveWidth}
-            onChange={(e) => setParam('curveWidth', Number(e.target.value))}
-          />
-        </label>
-        <label className="siri-wave-canvas-control flex flex-col gap-[4px]">
-          <span className="siri-wave-canvas-control-label text-[12px] leading-[16px] text-[#ffffffcc]">
-            Sun glow {params.sunGlow.toFixed(2)}
-          </span>
-          <input
-            className="siri-wave-canvas-control-input w-full"
-            type="range"
-            min="0"
-            max="2"
-            step="0.02"
-            value={params.sunGlow}
-            onChange={(e) => setParam('sunGlow', Number(e.target.value))}
-          />
-        </label>
-        <label className="siri-wave-canvas-control flex flex-col gap-[4px]">
-          <span className="siri-wave-canvas-control-label text-[12px] leading-[16px] text-[#ffffffcc]">
-            Sun glow on scroll {params.sunScroll.toFixed(2)}
-          </span>
-          <input
-            className="siri-wave-canvas-control-input w-full"
-            type="range"
-            min="0"
-            max="3"
-            step="0.05"
-            value={params.sunScroll}
-            onChange={(e) => setParam('sunScroll', Number(e.target.value))}
-          />
-        </label>
+      <div className="siri-wave-canvas-controls pointer-events-auto absolute top-[16px] right-[16px] z-[3] flex flex-col items-end gap-[8px]">
+        <button
+          type="button"
+          className="siri-wave-canvas-controls-toggle rounded-[10px] bg-[#1B1B1Bcc] px-[12px] py-[8px] text-[12px] font-[600] leading-[16px] text-[#F0F0EF]"
+          onClick={() => setHelperOpen((open) => !open)}
+          aria-expanded={helperOpen}
+        >
+          {helperOpen ? 'Helper ▴' : 'Helper ▾'}
+        </button>
+
+        {helperOpen ? (
+          <div className="siri-wave-canvas-controls-panel flex max-h-[calc(100vh-72px)] w-[240px] flex-col gap-[14px] overflow-y-auto rounded-[12px] bg-[#1B1B1Bcc] p-[14px] text-[#F0F0EF]">
+            <div className="siri-wave-canvas-controls-section flex flex-col gap-[10px]">
+              <div className="siri-wave-canvas-controls-header flex items-center justify-between gap-[8px]">
+                <span className="siri-wave-canvas-controls-title text-[12px] font-[600] leading-[16px] text-[#E8E2DB]">
+                  Ribbon
+                </span>
+                <button
+                  type="button"
+                  className="siri-wave-canvas-controls-reset rounded-[10px] bg-[#010703] px-[8px] py-[4px] text-[12px] font-[600] leading-[16px] text-[#E8E2DB]"
+                  onClick={() =>
+                    resetSection([
+                      'edgeHeight',
+                      'wavelength',
+                      'amplitude',
+                      'scrollIntensity',
+                      'curveWidth',
+                    ])
+                  }
+                >
+                  Reset
+                </button>
+              </div>
+              <label className="siri-wave-canvas-control flex flex-col gap-[4px]">
+                <span className="siri-wave-canvas-control-label text-[12px] leading-[16px] text-[#E8E2DBcc]">
+                  edge_height {params.edgeHeight.toFixed(2)}
+                </span>
+                <input
+                  className="siri-wave-canvas-control-input w-full"
+                  type="range"
+                  min="0"
+                  max="0.8"
+                  step="0.01"
+                  value={params.edgeHeight}
+                  onChange={(e) => setParam('edgeHeight', Number(e.target.value))}
+                />
+              </label>
+              <label className="siri-wave-canvas-control flex flex-col gap-[4px]">
+                <span className="siri-wave-canvas-control-label text-[12px] leading-[16px] text-[#E8E2DBcc]">
+                  wavelength {params.wavelength.toFixed(2)}
+                </span>
+                <input
+                  className="siri-wave-canvas-control-input w-full"
+                  type="range"
+                  min="0.3"
+                  max="4"
+                  step="0.05"
+                  value={params.wavelength}
+                  onChange={(e) => setParam('wavelength', Number(e.target.value))}
+                />
+              </label>
+              <label className="siri-wave-canvas-control flex flex-col gap-[4px]">
+                <span className="siri-wave-canvas-control-label text-[12px] leading-[16px] text-[#E8E2DBcc]">
+                  amplitude {params.amplitude.toFixed(3)}
+                </span>
+                <input
+                  className="siri-wave-canvas-control-input w-full"
+                  type="range"
+                  min="0"
+                  max="0.2"
+                  step="0.002"
+                  value={params.amplitude}
+                  onChange={(e) => setParam('amplitude', Number(e.target.value))}
+                />
+              </label>
+              <label className="siri-wave-canvas-control flex flex-col gap-[4px]">
+                <span className="siri-wave-canvas-control-label text-[12px] leading-[16px] text-[#E8E2DBcc]">
+                  scroll_intensity {params.scrollIntensity.toFixed(2)}
+                </span>
+                <input
+                  className="siri-wave-canvas-control-input w-full"
+                  type="range"
+                  min="0"
+                  max="3"
+                  step="0.05"
+                  value={params.scrollIntensity}
+                  onChange={(e) =>
+                    setParam('scrollIntensity', Number(e.target.value))
+                  }
+                />
+              </label>
+              <label className="siri-wave-canvas-control flex flex-col gap-[4px]">
+                <span className="siri-wave-canvas-control-label text-[12px] leading-[16px] text-[#E8E2DBcc]">
+                  curve_width {params.curveWidth.toFixed(2)}
+                </span>
+                <input
+                  className="siri-wave-canvas-control-input w-full"
+                  type="range"
+                  min="0"
+                  max="1"
+                  step="0.01"
+                  value={params.curveWidth}
+                  onChange={(e) => setParam('curveWidth', Number(e.target.value))}
+                />
+              </label>
+            </div>
+
+            <div className="siri-wave-canvas-controls-section flex flex-col gap-[10px]">
+              <div className="siri-wave-canvas-controls-header flex items-center justify-between gap-[8px]">
+                <span className="siri-wave-canvas-controls-title text-[12px] font-[600] leading-[16px] text-[#E8E2DB]">
+                  SunGlow
+                </span>
+                <button
+                  type="button"
+                  className="siri-wave-canvas-controls-reset rounded-[10px] bg-[#010703] px-[8px] py-[4px] text-[12px] font-[600] leading-[16px] text-[#E8E2DB]"
+                  onClick={() => resetSection(['sunGlow', 'sunScroll'])}
+                >
+                  Reset
+                </button>
+              </div>
+              <label className="siri-wave-canvas-control flex flex-col gap-[4px]">
+                <span className="siri-wave-canvas-control-label text-[12px] leading-[16px] text-[#E8E2DBcc]">
+                  sun_glow {params.sunGlow.toFixed(2)}
+                </span>
+                <input
+                  className="siri-wave-canvas-control-input w-full"
+                  type="range"
+                  min="0"
+                  max="2"
+                  step="0.02"
+                  value={params.sunGlow}
+                  onChange={(e) => setParam('sunGlow', Number(e.target.value))}
+                />
+              </label>
+              <label className="siri-wave-canvas-control flex flex-col gap-[4px]">
+                <span className="siri-wave-canvas-control-label text-[12px] leading-[16px] text-[#E8E2DBcc]">
+                  sun_glow_on_scroll {params.sunScroll.toFixed(2)}
+                </span>
+                <input
+                  className="siri-wave-canvas-control-input w-full"
+                  type="range"
+                  min="0"
+                  max="3"
+                  step="0.05"
+                  value={params.sunScroll}
+                  onChange={(e) => setParam('sunScroll', Number(e.target.value))}
+                />
+              </label>
+            </div>
+          </div>
+        ) : null}
       </div>
     </>
   );

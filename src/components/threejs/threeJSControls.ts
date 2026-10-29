@@ -6,7 +6,19 @@
  * See Doc/threeJS/ThreeJSComponents.md for effect names.
  */
 
-import { ThreeColorWarmGradient } from '@/components/threejs/threeJSColors';
+import {
+  ThreeColorPinkSunriseCore,
+  ThreeColorPinkSunriseCoral,
+  ThreeColorPinkSunriseLavender,
+  ThreeColorPinkSunriseMist,
+  ThreeColorPinkSunriseOrange,
+  ThreeColorPinkSunrisePink,
+  ThreeColorRedSunriseLightBlue,
+  ThreeColorRedSunriseOrange,
+  ThreeColorRedSunriseRed,
+  ThreeColorRedSunriseYellow,
+  ThreeColorWarmGradient,
+} from '@/components/threejs/threeJSColors';
 
 /** Scroll smoothing (host loop, not an effect) */
 export const LerpEase = 0.07;
@@ -53,8 +65,10 @@ export const PSGRID_DEFAULTS = {
   glyph_speed: 0.17,
   size_min: 0.02,
   bend: 0.13,
-  bend_to: 0.31,
+  bend_to: 0.431,
   fade_top: 0.31,
+  /** Page-scroll depth: UV Y shift per viewport scrolled (small = subtle parallax) */
+  parallax: 0.65,
 };
 
 /** FilmGrain — StarlightRibbon only (not shared with GradientCloud) */
@@ -81,6 +95,62 @@ export const gradientCloudLive = {
   grain_intensity: GRADIENTCLOUD_DEFAULTS.grain_intensity,
   noise_size: GRADIENTCLOUD_DEFAULTS.noise_size,
   rotation_speed: GRADIENTCLOUD_DEFAULTS.rotation_speed,
+};
+
+/**
+ * RedSunriseGlassEffect — DesignSystem red/orange/yellow/light-blue + sun motion.
+ * Same knobs as PinkSunrise (speed, ribs, glass, spread, wave). No grain.
+ */
+export const RED_SUNRISE_GLASS_DEFAULTS = {
+  speed: 3.1,
+  opacity: 1,
+  ribs: 20,
+  glass: 0.07,
+  spread: 2.3,
+  wave: 0.11,
+  red: ThreeColorRedSunriseRed,
+  orange: ThreeColorRedSunriseOrange,
+  yellow: ThreeColorRedSunriseYellow,
+  lightBlue: ThreeColorRedSunriseLightBlue,
+};
+
+/**
+ * PinkSunriseGlassEffect — sun at the bottom spreads pink/orange light in circles,
+ * viewed through static vertical reeded glass. Colors are out of design system.
+ */
+export const PINK_SUNRISE_GLASS_DEFAULTS = {
+  speed: 3.1,
+  opacity: 1,
+  /** vertical fluted-glass ribs across the width (static, even spacing) */
+  ribs: 20,
+  /** glass strength: 0 = flat, ~1 = clear refraction, higher = stronger bend */
+  glass: 0.07,
+  /** how wide the sun spreads sideways (1 = true circles, higher = wider) */
+  spread: 2.3,
+  /** strength of the expanding light rings */
+  wave: 0.11,
+  core: ThreeColorPinkSunriseCore,
+  orange: ThreeColorPinkSunriseOrange,
+  coral: ThreeColorPinkSunriseCoral,
+  pink: ThreeColorPinkSunrisePink,
+  lavender: ThreeColorPinkSunriseLavender,
+  mist: ThreeColorPinkSunriseMist,
+};
+
+export const pinkSunriseGlassLive = {
+  speed: PINK_SUNRISE_GLASS_DEFAULTS.speed,
+  ribs: PINK_SUNRISE_GLASS_DEFAULTS.ribs,
+  glass: PINK_SUNRISE_GLASS_DEFAULTS.glass,
+  spread: PINK_SUNRISE_GLASS_DEFAULTS.spread,
+  wave: PINK_SUNRISE_GLASS_DEFAULTS.wave,
+};
+
+export const redSunriseGlassLive = {
+  speed: RED_SUNRISE_GLASS_DEFAULTS.speed,
+  ribs: RED_SUNRISE_GLASS_DEFAULTS.ribs,
+  glass: RED_SUNRISE_GLASS_DEFAULTS.glass,
+  spread: RED_SUNRISE_GLASS_DEFAULTS.spread,
+  wave: RED_SUNRISE_GLASS_DEFAULTS.wave,
 };
 
 /**

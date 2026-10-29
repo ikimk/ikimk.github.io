@@ -39,12 +39,16 @@ className="bg-[#010703] text-[#E8E2DB]"
 | `ColorBlack` | `#0A0A0A` |
 | `ColorGrayBlack` | `#1B1B1B` |
 
-### Action
+### Action / spectrum
 
 | Token | Hex |
 |-------|-----|
+| `ColorRed` | `#FF0000` |
 | `ColorOrange` | `#FF5320` |
+| `ColorAmber` | `#FF9500` |
+| `ColorYellow` | `#FFC53A` |
 | `ColorBlue` | `#00A1DC` |
+| `ColorLightBlue` | `#A8D4F0` |
 | `ColorGreen` | `#00B327` |
 
 ### Whites (light → dark)

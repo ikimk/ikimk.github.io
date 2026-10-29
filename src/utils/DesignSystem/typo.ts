@@ -39,10 +39,12 @@ export const FontSize9 = Scale9; // 29.78
 export const FontSize10 = Scale10; // 18.41 — header / UI
 
 /** Font weights (Open Sans) — Auto when not specified */
+export const FontWeightLight = 300;
 export const FontWeightAuto = 400;
 export const FontWeightRegular = 400;
 export const FontWeightSemiBold = 600;
 export const FontWeightBold = 700;
+export const FontWeightExtraBold = 800;
 
 /** Line-height — Auto when not specified */
 export const LineHeightAuto = 'normal';

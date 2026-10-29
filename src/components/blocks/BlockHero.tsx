@@ -10,6 +10,8 @@ import {
   FontSize8,
   FontWeightBold,
   LineHeightSolid,
+  Scale6,
+  Scale5,
   Scale9,
   Scale10,
   Tracking2,
@@ -34,17 +36,15 @@ export default function BlockHero({ includeCanvas = true }: BlockHeroProps) {
   return (
     <section
       className={`BlockHero relative isolate flex w-full items-center justify-center ${
-        isPageFlow
-          ? 'min-h-[0px]'
-          : 'h-[100dvh] min-h-[100vh] overflow-hidden'
+        isPageFlow ? 'min-h-[0px]' : 'h-[100dvh] min-h-[100vh] overflow-hidden'
       }`}
       style={{
         backgroundColor: includeCanvas ? ColorBlackDarkest : 'transparent',
         // Figma: Hello World sits in the upper band; projects start in-frame
-        height: isPageFlow ? '62vh' : undefined,
-        minHeight: isPageFlow ? 420 : undefined,
         paddingLeft: contentPadX,
         paddingRight: contentPadX,
+        marginTop: Scale5,
+        marginBottom: Scale6,
       }}
     >
       {includeCanvas ? (

@@ -20,6 +20,9 @@ export default function HomePage() {
         style={{ maxWidth: PageMaxWidth }}
       >
         <BlockHero includeCanvas={false} />
+      </div>
+      {/* Full viewport width — project rails scroll edge-to-edge (Apple-style) */}
+      <div className="home-page-projects relative z-[1] w-full">
         <Projects layout="section" />
       </div>
     </div>

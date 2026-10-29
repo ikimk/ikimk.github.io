@@ -30,6 +30,7 @@ const fragmentShader = `
   uniform float uGlyphSpeed;
   uniform float uSizeMin;
   uniform float uFadeTop;
+  uniform float uParallaxY;
   uniform vec3 uGlyph;
   varying vec2 vUv;
 
@@ -102,9 +103,9 @@ const fragmentShader = `
     vec2 uv = vUv;
     uv.x *= aspect;
 
-    // □△○✕ grid scrolls down (top → bottom)
+    // □△○✕ grid scrolls down (top → bottom); page scroll shifts Y for depth
     vec2 p = uv * uScale;
-    p.y += uTime * uGlyphSpeed;
+    p.y += uTime * uGlyphSpeed - uParallaxY;
 
     // brick stagger
     float row = floor(p.y);
@@ -113,9 +114,9 @@ const fragmentShader = `
     vec2 cell = floor(p);
     vec2 f = fract(p) - 0.5;
 
-    // size field scrolls up independently (slower), screen-locked
+    // size field scrolls up independently (slower); same parallax so clusters stick
     vec2 np = uv * uScale;
-    np.y -= uTime * uNoiseSpeed;
+    np.y -= uTime * uNoiseSpeed + uParallaxY;
     float nrow = floor(np.y);
     np.x += mod(nrow, 2.0) * 0.5;
     vec2 nCell = floor(np);
@@ -186,10 +187,18 @@ export type PSGridParams = {
   bend_to: number;
   /** top fade height as fraction of viewport (0.5 = 50vh) */
   fade_top: number;
+  /** UV Y shift per viewport of page scroll — small depth parallax */
+  parallax: number;
 };
 
 export type PSGridEffect = {
-  update: (time: number, scroll: number, params: PSGridParams) => void;
+  update: (
+    time: number,
+    scroll: number,
+    params: PSGridParams,
+    /** window.scrollY / innerHeight — page scroll in viewport units */
+    pageScrollVH?: number,
+  ) => void;
   resize: (viewW: number, viewH: number, pixelW: number, pixelH: number) => void;
   dispose: () => void;
 };
@@ -214,6 +223,7 @@ export function createPSGrid(
   const size_min = defaults?.size_min ?? 0.12;
   const bend = defaults?.bend ?? 0.35;
   const fade_top = defaults?.fade_top ?? 0.5;
+  const parallax = defaults?.parallax ?? 0.12;
   const glyphHex = colors?.glyph ?? ThreeColorPSGridGlyph;
 
   // dense Y segments so the Z sine reads smooth
@@ -233,6 +243,7 @@ export function createPSGrid(
       uSizeMin: { value: size_min },
       uBend: { value: bend },
       uFadeTop: { value: fade_top },
+      uParallaxY: { value: 0 },
       uGlyph: { value: hexToRgb(glyphHex) },
     },
     vertexShader,
@@ -258,7 +269,7 @@ export function createPSGrid(
   }
 
   return {
-    update(time, scroll, params) {
+    update(time, scroll, params, pageScrollVH = 0) {
       material.uniforms.uTime.value = time;
       material.uniforms.uScale.value = params.scale;
       material.uniforms.uGlyphSize.value = params.glyph_size;
@@ -269,7 +280,10 @@ export function createPSGrid(
       material.uniforms.uGlyphSpeed.value = params.glyph_speed;
       material.uniforms.uSizeMin.value = params.size_min;
       material.uniforms.uFadeTop.value = params.fade_top;
-      // opacity + bend amp: rest → scroll targets
+      // depth parallax — page scroll shifts grid Y (glyphs + noise together)
+      material.uniforms.uParallaxY.value =
+        pageScrollVH * (params.parallax ?? parallax) * params.scale;
+      // opacity + bend amp: rest → wheel-scroll targets
       const scrollT = Math.min(Math.abs(scroll), 1);
       material.uniforms.uOpacity.value =
         params.opacity + (params.opacity_to - params.opacity) * scrollT;

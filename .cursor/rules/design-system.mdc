@@ -14,6 +14,7 @@ When the user says **“follow DesignSystem”** / **`@DesignSystem`** / freesty
 |---------|------|
 | Space / size (pad, margin, gap, w/h) | `goldenRatio.ts` |
 | Page / header max width | `layout.ts` (`PageMaxWidth`) |
+| Corner radius (even px only) | `radius.ts` (`Radius8`…`Radius16`) |
 | Type (size, tracking, weight, line-height) | `typo.ts` |
 | UI colors (exact names: `ColorBlack`…) | `color.ts` |
 | Barrel re-export | `index.ts` → `@/utils/DesignSystem` |
@@ -22,8 +23,13 @@ When the user says **“follow DesignSystem”** / **`@DesignSystem`** / freesty
 ## Import
 
 ```ts
-import { Scale10, ColorCream, Tracking1, FontSize10 } from '@/utils/DesignSystem';
+import { Scale10, ColorCream, Tracking1, FontSize10, Radius12 } from '@/utils/DesignSystem';
 ```
+
+## Radius — even px only
+
+Corner radii use **even** values only: `8` · `10` · `12` · `14` · `16` → `Radius8`…`Radius16`.  
+Do **not** snap radius to golden `Scale*` (those are odd decimals).
 
 ## When the user gives something new
 
@@ -31,5 +37,6 @@ import { Scale10, ColorCream, Tracking1, FontSize10 } from '@/utils/DesignSystem
 2. **New UI color** → update `DesignSystem/color.ts` first (exact `Color*` + `colorCssVars` if needed), then wire UI.
 3. **New Three.js color** → update `threeJSColors.ts` first.
 4. **New spacing size** → match / add via `DesignSystem/goldenRatio.ts` (`Scale*`), then use it.
+5. **New corner radius** → only if even 8/10/12/14/16 (or extend `radius.ts` with another even step), then wire UI.
 
 Never hardcode a new font, color, or size only in a component. Token file → then usage.
