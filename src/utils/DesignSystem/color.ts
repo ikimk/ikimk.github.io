@@ -3,6 +3,8 @@
  * No role aliases (Bg / Text / Logo). Three.js → `threeJSColors.ts`.
  */
 
+import type { CSSProperties } from 'react';
+
 /** Blacks — dark → less dark */
 export const ColorBlackDarkest = '#010703';
 export const ColorBlack = '#0A0A0A';
@@ -48,4 +50,4 @@ export const colorCssVars = {
   '--color-gray': ColorGray,
   '--color-glitch-blue': ColorGlitchBlue,
   '--color-glitch-red': ColorGlitchRed,
-} as const;
+} as CSSProperties;

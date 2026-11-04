@@ -46,8 +46,8 @@ export default function GradientCloud({ className = '', params }: GradientCloudP
     const clock = new THREE.Clock();
 
     function FitToContainer() {
-      const w = Math.max(1, wrap.clientWidth);
-      const h = Math.max(1, wrap.clientHeight);
+      const w = Math.max(1, wrap!.clientWidth);
+      const h = Math.max(1, wrap!.clientHeight);
       renderer.setSize(w, h, false);
       camera.aspect = w / h;
       camera.updateProjectionMatrix();

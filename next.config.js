@@ -1,6 +1,10 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  // Static HTML for GitHub Pages
+  output: 'export',
+  trailingSlash: true,
   images: {
+    unoptimized: true,
     domains: [
       'localhost',
       'dev.cms.AppName.baboons.tech',
