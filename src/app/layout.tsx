@@ -52,13 +52,17 @@ export default function RootLayout({
   return (
     <html lang="en" style={colorCssVars}>
       <head>
-        {/* <link rel="preconnect" href="https://fonts.gstatic.com" />
-        <link rel="preconnect" href="https://fonts.googleapis.com" /> */}
-        {/* Inter */}
-        {/* <link
-          href="https://fonts.googleapis.com/css2?family=Inter:wght@100;200;300;400;500;600;700;800;900&display=swap"
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link
+          rel="preconnect"
+          href="https://fonts.gstatic.com"
+          crossOrigin="anonymous"
+        />
+        {/* Open Sans — must be <link>, not SCSS @import (bundler puts @import mid-CSS → ignored) */}
+        <link
+          href="https://fonts.googleapis.com/css2?family=Open+Sans:ital,wght@0,300;0,400;0,600;0,700;0,800;1,300;1,400;1,600;1,700;1,800&display=swap"
           rel="stylesheet"
-        /> */}
+        />
       </head>
       <body>
         <div className="App ">
